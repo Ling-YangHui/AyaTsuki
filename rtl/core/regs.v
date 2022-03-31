@@ -41,7 +41,7 @@ module regs (
         end else begin
             regs[0] <= `data_zero;
             regs[1] <= `data_zero;
-            regs[2] <= `data_zero;
+            regs[2] <= `sp_init;
             regs[3] <= `data_zero;
             regs[4] <= `data_zero;
             regs[5] <= `data_zero;

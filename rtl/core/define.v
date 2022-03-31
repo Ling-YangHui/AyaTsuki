@@ -218,3 +218,6 @@
 `define inst_ie 7'b1110011
 `define inst_ecall_imm 12'b0
 `define inst_ebreak_imm 12'b1
+
+// Memory Size
+`define sp_init 32'd2048

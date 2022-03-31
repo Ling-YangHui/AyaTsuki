@@ -168,15 +168,15 @@ module ex (
             `inst_l: begin
                 mem_w_reg_enable_o = `write_enable;
                 w_reg_addr_o = w_reg_addr_i;
-                r_mem_addr_o = `mem_enable;
+                r_mem_enable_o = `read_enable;
                 r_mem_addr_o = alu_result;
                 data_type_o = data_type_i;
             end
             `inst_s: begin
                 w_mem_addr_o = alu_result;
-                w_mem_enable_o = `mem_enable;
+                w_mem_enable_o = `write_enable;
                 w_mem_data_o = r_reg_data_2_i;
-                r_mem_enable_o = `mem_enable;
+                r_mem_enable_o = `read_enable;
                 r_mem_addr_o = alu_result;
                 data_type_o = data_type_i;
             end
