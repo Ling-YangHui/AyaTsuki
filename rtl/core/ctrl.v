@@ -63,10 +63,11 @@ module ctrl (
             hold_if_id = `hold_flush;
             hold_id_ex = `hold_flush;
             hold_ex_memwb = `hold_no; // because the next step may has some operation to write register
+        /*
         end else if (clint_irq_flush_req_i == `req_enable) begin 
             
         end else if (jtag_halt_wait_req_i == `req_enable) begin
-            
+        */
         end else begin
             hold_pc = `hold_no;
             hold_if_id = `hold_no;

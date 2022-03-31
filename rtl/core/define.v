@@ -3,6 +3,8 @@
 * Date: 20220328
 * File: define.v
 */
+`define __ISE__
+
 `ifndef __ISE__
 `include "rtl/core/global_conf.v"
 `endif

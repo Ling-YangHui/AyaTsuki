@@ -113,7 +113,7 @@ module ex (
             end
             `inst_auipc: begin
                 alu_src1 = r_pc_data_i;
-                alu_src1 = r_imm_data_i << 12;
+                alu_src2 = r_imm_data_i << 12;
             end
             default: begin
                 alu_src1 = 32'b0;

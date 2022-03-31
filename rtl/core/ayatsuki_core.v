@@ -46,19 +46,6 @@ module ayatsuki_core (
 
     assign inst_addr_o = pc_inst_addr;
 
-    ctrl u_ctrl(
-        //.ex_multi_clock_wait_req_i (ex_multi_clock_wait_req_i ),
-        .ex_jump_flush_req_i       (ex_jump_flag            ),
-        //.mem_wb_wr_wait_req_i      (mem_wb_wr_wait_req_i      ),
-        //.clint_irq_flush_req_i     (clint_irq_flush_req_i     ),
-        //.jtag_halt_wait_req_i      (jtag_halt_wait_req_i      ),
-        .ex_jump_flush_addr_i      (ex_jump_addr            ),
-        .hold_ctrl_o               (hold_bus                ),
-        .jump_flag_o               (jump_flag               ),
-        .jump_addr_o               (jump_addr               )
-    );
-    
-
     pc u_pc(
     	.clk          (clk          ),
         .rst_n        (rst_n        ),
@@ -267,6 +254,18 @@ module ayatsuki_core (
         .ex_w_csr_data_o    (ex_w_csr_data_o    ),
         .ex_w_csr_enable_o  (ex_w_csr_enable_o  )
         */
+    );
+
+    ctrl u_ctrl(
+        //.ex_multi_clock_wait_req_i (ex_multi_clock_wait_req_i ),
+        .ex_jump_flush_req_i       (ex_jump_flag            ),
+        //.mem_wb_wr_wait_req_i      (mem_wb_wr_wait_req_i      ),
+        //.clint_irq_flush_req_i     (clint_irq_flush_req_i     ),
+        //.jtag_halt_wait_req_i      (jtag_halt_wait_req_i      ),
+        .ex_jump_flush_addr_i      (ex_jump_addr            ),
+        .hold_ctrl_o               (hold_bus                ),
+        .jump_flag_o               (jump_flag               ),
+        .jump_addr_o               (jump_addr               )
     );
 
     wire ex_mw_exw_reg_enable;
