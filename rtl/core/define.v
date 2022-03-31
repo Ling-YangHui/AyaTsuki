@@ -3,8 +3,6 @@
 * Date: 20220328
 * File: define.v
 */
-`define __ISE__
-
 `ifndef __ISE__
 `include "rtl/core/global_conf.v"
 `endif
@@ -110,7 +108,7 @@
 `define datatype_no 3'b000
 `define reg_zero 5'b0
 `define data_zero 32'b0
-`define inst_nop 32'b0
+`define inst_nop 32'b00000000000000000000000000010011
 `define mem_addr_zero 32'b0
 `define csr_zero 32'b0
 `define inst_addr_zero 32'b0

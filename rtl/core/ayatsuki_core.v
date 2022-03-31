@@ -332,9 +332,5 @@ module ayatsuki_core (
         .w_reg_enable_o     (w_reg_enable           )
     );
     
-    
-    
-    
-    
 endmodule
 
