@@ -31,9 +31,12 @@ module ex (
     input wire [`data_type_bus]         data_type_i,
 
     // Out
-    // jump
+    // jump or exception
     output reg                          jump_enable_o,
-    output reg [`inst_addr_bus]         jump_addr_o,               
+    output reg [`inst_addr_bus]         jump_addr_o,
+
+    output reg                          div_hold_enable_o, //TODO
+    output reg                          inst_invalide_o, // TODO
 
     // connect to trans: ex_w-ex_data mem_w-read_mem_data
     output reg                          ex_w_reg_enable_o,
@@ -65,6 +68,7 @@ module ex (
     reg signed [`data_bus] inst_add_src1;
     reg signed [`data_bus] inst_add_src2;
     wire [`data_bus] inst_add_result = inst_add_src1 + inst_add_src2;
+    wire [`data_bus] inst_u_lr = r_imm_data_i << 12;
 
     // first step: allocate the data to alu_src
     wire [6:0] opcode_i = r_inst_i[6:0];
@@ -108,12 +112,12 @@ module ex (
                 inst_add_src2 = 32'h4;
             end
             `inst_lui: begin
-                alu_src1 = r_imm_data_i << 12;
+                alu_src1 = inst_u_lr;
                 alu_src2 = 32'b0; // Use ADD
             end
             `inst_auipc: begin
                 alu_src1 = r_pc_data_i;
-                alu_src2 = r_imm_data_i << 12;
+                alu_src2 = inst_u_lr;
             end
             default: begin
                 alu_src1 = 32'b0;

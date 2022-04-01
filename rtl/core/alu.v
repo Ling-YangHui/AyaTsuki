@@ -8,6 +8,10 @@
 `include "rtl/core/define.v"
 `endif
 
+`ifdef __ISE__
+`include "define.v"
+`endif
+
 module alu (
     input wire [`alu_inst_bus]      alu_inst_i,
     input wire signed [`data_bus]   alu_src1_i,
@@ -28,8 +32,7 @@ module alu (
         (alu_inst_i == `alu_xor) ? alu_src1_i ^ alu_src2_i :
         (alu_inst_i == `alu_ll) ? alu_src1_i << alu_src2_i[4:0] :
         (alu_inst_i == `alu_rl) ? alu_src1_i >> alu_src2_i[4:0] :
-        (alu_inst_i == `alu_arl) ? 
-            (alu_src1_i >>> alu_src2_i) | ({32{alu_src1_i[31]}} & ~arl_mask) :
+        (alu_inst_i == `alu_arl) ? (alu_src1_i >>> alu_src2_i) | ({32{alu_src1_i[31]}} & ~arl_mask) :
         (alu_inst_i == `alu_cmp_less) ? (alu_src1_i < alu_src2_i) :
         (alu_inst_i == `alu_cmp_lessu) ? (u_alu_src1_i < u_alu_src2_i) : 
         (alu_inst_i == `alu_cmp_eq) ? (alu_src1_i == alu_src2_i) : 

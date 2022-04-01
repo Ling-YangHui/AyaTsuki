@@ -80,14 +80,14 @@ end
 initial
 begin
     #(PERIOD*2) rst_n  =  1;
-    repeat(300) @(negedge clk);
+    repeat(10) @(negedge clk);
     $finish;
 end
 
 initial
 begin
-    $dumpfile("./release/tb_core.vcd");
-    $dumpvars(0, tb_core);
+    // $dumpfile("./release/tb_core.vcd");
+    // $dumpvars(0, tb_core);
 end
 
 endmodule
