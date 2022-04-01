@@ -63,6 +63,7 @@ module ctrl (
             hold_ex_memwb = `hold_flush;
             
         // JUMP AND FLUSH
+        // Jump for normal reason
         end else if (ex_jump_cause_i == `jump_cause_predict_yes_but_no ||
                     ex_jump_cause_i == `jump_cause_predict_no_but_yes ||
                     ex_jump_cause_i == `jump_cause_nocondition ) begin

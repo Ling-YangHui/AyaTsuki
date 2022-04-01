@@ -158,10 +158,12 @@ module pc (
                     
                 end
                 `jump_cause_interrupt: begin
-                    
+                    predict_inst_addr <= {(3 * `inst_addr_bus_width){1'b1}};
+                    predict_inst_result <= {9{1'b1}};
                 end
                 `jump_cause_exception: begin
-                    
+                    predict_inst_addr <= {(3 * `inst_addr_bus_width){1'b1}};
+                    predict_inst_result <= {9{1'b1}};
                 end
                 default: begin
                     
