@@ -22,6 +22,9 @@ module id_ex (
     input wire [`imm_data_bus]          imm_data_i,
     input wire [`csr_data_bus]          r_csr_data_i,
     input wire [`inst_addr_bus]         r_pc_data_i,
+
+    // predict_jump
+    input wire                          predict_jump_enable_i,
     
     // alu inst
     input wire [`alu_inst_bus]          alu_inst_i,
@@ -57,7 +60,10 @@ module id_ex (
     output wire [`csr_addr_bus]         w_csr_addr_o,
 
     // for l/s inst
-    output wire [`data_type_bus]        data_type_o
+    output wire [`data_type_bus]        data_type_o,
+
+    // predict_jump
+    output wire                         predict_jump_enable_o
 );
 
     wire hold_flush = (hold_flag_i == `hold_flush);
@@ -217,6 +223,18 @@ module id_ex (
         .default_data_i (`datatype_no   ),
         .data_i         (data_type_i    ),
         .data_o         (data_type_o    )
+    );
+
+    pipe_reg_s #(
+        .dw (1)
+    ) pipe_predict_jump_enable (
+    	.clk            (clk                    ),
+        .rst_n          (rst_n                  ),
+        .set_default    (hold_flush             ),
+        .hold_en        (hold_wait              ),
+        .default_data_i (`predict_jump_disable  ),
+        .data_i         (predict_jump_enable_i  ),
+        .data_o         (predict_jump_enable_o  )
     );
 
     

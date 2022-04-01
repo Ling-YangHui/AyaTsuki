@@ -61,6 +61,9 @@
 `define data_type_bus 2:0
 `define data_type_bus_width 3
 
+`define jump_cause_bus 2:0
+`define jump_cause_bus_width
+
 // Default data
 `define pc_reset 32'b0
 
@@ -92,6 +95,9 @@
 `define csr_enable 1'b1
 `define csr_disable 1'b0
 
+`define predict_jump_enable 1'b1
+`define predict_jump_disable 1'b0
+
 // Mem
 `define mem_write 1'b1
 `define mem_read 1'b0
@@ -103,6 +109,14 @@
 `define hold_no 2'b00
 `define hold_flush 2'b01
 `define hold_wait 2'b10
+
+// Jump cause
+`define jump_cause_no 3'b000
+`define jump_cause_predict_no_but_yes 3'b001
+`define jump_cause_predict_yes_but_no 3'b010
+`define jump_cause_nocondition 3'b011
+`define jump_cause_interrupt 3'b100
+`define jump_cause_exception 3'b101 
 
 // Default
 `define datatype_no 3'b000

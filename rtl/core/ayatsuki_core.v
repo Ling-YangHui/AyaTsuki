@@ -40,12 +40,15 @@ module ayatsuki_core (
     wire [`holdpip_bus] hold_id_ex = hold_bus[5:4];
     wire [`holdpip_bus] hold_ex_memwb = hold_bus[7:6];
 
-    wire jump_flag;
-    wire [`inst_addr_bus] jump_addr;
+    wire [`jump_cause_bus] jump_cause;
+    wire [`inst_addr_bus] jump_from_addr;
+    wire [`inst_addr_bus] jump_to_addr;
     wire [`inst_addr_bus] pc_inst_addr;
+    wire pc_predict_jump_enable;
 
     assign inst_addr_o = pc_inst_addr;
 
+    /*
     pc u_pc(
     	.clk          (clk          ),
         .rst_n        (rst_n        ),
@@ -53,22 +56,37 @@ module ayatsuki_core (
         .jump_addr_i  (jump_addr    ),
         .hold_flag_i  (hold_pc      ),
         .pc_o         (pc_inst_addr )
-        /*
         .jtag_reset_i (jtag_reset_i ),
-        */
     );
+    */
+
+    pc u_pc(
+    	.clk               (clk                     ),
+        .rst_n             (rst_n                   ),
+        .jump_cause_i      (jump_cause              ),
+        .jump_from_addr_i  (jump_from_addr          ),
+        .jump_to_addr_i    (jump_to_addr            ),
+        .hold_flag_i       (hold_pc                 ),
+        //.jtag_reset_i      (jtag_reset_i      ),
+        .inst_i            (inst_i                  ),
+        .pc_o              (pc_inst_addr            ),
+        .predict_to_jump_o (pc_predict_jump_enable  )
+    );
+    
 
     wire [`inst_addr_bus] if_id_inst_addr;
     wire [`inst_bus] if_id_inst;
-
+    wire if_id_predict_jump_enable;
     if_id u_if_id(
-    	.clk         (clk               ),
-        .rst_n       (rst_n             ),
-        .hold_flag_i (hold_if_id        ),
-        .inst_i      (inst_i            ),
-        .inst_addr_i (pc_inst_addr      ),
-        .inst_o      (if_id_inst        ),
-        .inst_addr_o (if_id_inst_addr   )
+    	.clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+        .hold_flag_i            (hold_if_id                 ),
+        .inst_i                 (inst_i                     ),
+        .inst_addr_i            (pc_inst_addr               ),
+        .predict_jump_enable_i  (pc_predict_jump_enable     ),
+        .inst_o                 (if_id_inst                 ),
+        .inst_addr_o            (if_id_inst_addr            ),
+        .predict_jump_enable_o  (if_id_predict_jump_enable  )
     );
     
 
@@ -144,39 +162,42 @@ module ayatsuki_core (
     wire [`inst_bus] id_ex_inst;
     wire [`reg_addr_bus] id_ex_w_reg_addr;
     wire [`data_type_bus] id_ex_datatype;
-
+    wire id_ex_predict_jump_enable;
 
     id_ex u_id_ex(
-    	.clk            (clk                ),
-        .rst_n          (rst_n              ),
-        .hold_flag_i    (hold_id_ex         ),
-        .r_reg_addr_1_i (r_reg_addr1        ),
-        .r_reg_addr_2_i (r_reg_addr2        ),
+    	.clk                    (clk                        ),
+        .rst_n                  (rst_n                      ),
+        .hold_flag_i            (hold_id_ex                 ),
+        .r_reg_addr_1_i         (r_reg_addr1                ),
+        .r_reg_addr_2_i         (r_reg_addr2                ),
         //.r_csr_addr_i   (r_csr_addr_i   ),
-        .r_reg_data_1_i (id_reg_data1       ),
-        .r_reg_data_2_i (id_reg_data2       ),
-        .imm_data_i     (id_imm_data        ),
+        .r_reg_data_1_i         (id_reg_data1               ),
+        .r_reg_data_2_i         (id_reg_data2               ),
+        .imm_data_i             (id_imm_data                ),
         //.r_csr_data_i   (r_csr_data_i   ),
-        .r_pc_data_i    (id_pc_inst_addr    ),
-        .alu_inst_i     (id_alu_inst        ),
-        .r_inst_i       (id_inst            ),
-        .w_reg_addr_i   (id_w_reg_addr      ),
+        .r_pc_data_i            (id_pc_inst_addr            ),
+        .alu_inst_i             (id_alu_inst                ),
+        .r_inst_i               (id_inst                    ),
+        .w_reg_addr_i           (id_w_reg_addr              ),
         //.w_csr_addr_i   (w_csr_addr_i   ),
-        .data_type_i    (id_datatype        ),
+        .data_type_i            (id_datatype                ),
 
-        .r_reg_addr_1_o (id_ex_reg_addr1    ),
-        .r_reg_addr_2_o (id_ex_reg_addr2    ),
+        .predict_jump_enable_i  (if_id_predict_jump_enable  ),
+
+        .r_reg_addr_1_o         (id_ex_reg_addr1            ),
+        .r_reg_addr_2_o         (id_ex_reg_addr2            ),
         //.r_csr_addr_o   (r_csr_addr_o   ),
-        .r_reg_data_1_o (id_ex_r_reg_data1  ),
-        .r_reg_data_2_o (id_ex_r_reg_data2  ),
-        .imm_data_o     (id_ex_imm_data     ),
+        .r_reg_data_1_o         (id_ex_r_reg_data1          ),
+        .r_reg_data_2_o         (id_ex_r_reg_data2          ),
+        .imm_data_o             (id_ex_imm_data             ),
         //.r_csr_data_o   (r_csr_data_o   ),
-        .r_pc_data_o    (id_ex_pc_data      ),
-        .alu_inst_o     (id_ex_alu_inst     ),
-        .r_inst_o       (id_ex_inst         ),
-        .w_reg_addr_o   (id_ex_w_reg_addr   ),
+        .r_pc_data_o            (id_ex_pc_data              ),
+        .alu_inst_o             (id_ex_alu_inst             ),
+        .r_inst_o               (id_ex_inst                 ),
+        .w_reg_addr_o           (id_ex_w_reg_addr           ),
         //.w_csr_addr_o   (w_csr_addr_o   ),
-        .data_type_o    (id_ex_datatype     )
+        .data_type_o            (id_ex_datatype             ),
+        .predict_jump_enable_o  (id_ex_predict_jump_enable  )
     );
     
 
@@ -212,7 +233,8 @@ module ayatsuki_core (
     );
 
     wire ex_jump_flag;
-    wire [`inst_addr_bus] ex_jump_addr;
+    wire [`inst_addr_bus] ex_jump_from_addr;
+    wire [`inst_addr_bus] ex_jump_to_addr;
     wire ex_w_reg_enable;
     wire mem_w_reg_enable;
     wire [`reg_addr_bus] ex_w_reg_addr;
@@ -223,32 +245,36 @@ module ayatsuki_core (
     wire [`mem_addr_bus] ex_r_mem_addr;
     wire ex_r_mem_enable;
     wire [`data_type_bus] ex_datatype;
+    wire [`jump_cause_bus] ex_jump_cause;
 
     ex u_ex(
-    	.r_reg_data_1_i     (trans_reg_data_1   ),
-        .r_reg_data_2_i     (trans_reg_data_2   ),
-        .r_imm_data_i       (id_ex_imm_data     ),
+    	.r_reg_data_1_i         (trans_reg_data_1   ),
+        .r_reg_data_2_i         (trans_reg_data_2   ),
+        .r_imm_data_i           (id_ex_imm_data     ),
         //.r_csr_data_i       (r_csr_data_i       ),
-        .r_pc_data_i        (id_ex_pc_data      ),
-        .alu_inst_i         (id_ex_alu_inst     ),
-        .r_inst_i           (id_ex_inst         ),
-        .w_reg_addr_i       (id_ex_w_reg_addr   ),
+        .r_pc_data_i            (id_ex_pc_data      ),
+        .alu_inst_i             (id_ex_alu_inst     ),
+        .r_inst_i               (id_ex_inst         ),
+        .w_reg_addr_i           (id_ex_w_reg_addr   ),
         //.w_csr_addr_i       (w_csr_addr_i       ),
-        .data_type_i        (id_ex_datatype     ),
+        .data_type_i            (id_ex_datatype     ),
 
-        .jump_enable_o      (ex_jump_flag       ),
-        .jump_addr_o        (ex_jump_addr       ),
+        .predict_jump_enable_i  (id_ex_predict_jump_enable),
 
-        .ex_w_reg_enable_o  (ex_w_reg_enable    ),
-        .mem_w_reg_enable_o (mem_w_reg_enable   ),
-        .w_reg_addr_o       (ex_w_reg_addr      ),
-        .ex_w_reg_data_o    (ex_w_reg_data      ),
-        .w_mem_addr_o       (ex_w_mem_addr      ),
-        .w_mem_enable_o     (ex_w_mem_enable    ),
-        .w_mem_data_o       (ex_w_mem_data      ),
-        .r_mem_addr_o       (ex_r_mem_addr      ),
-        .r_mem_enable_o     (ex_r_mem_enable    ),
-        .data_type_o        (ex_datatype        )
+        .jump_cause_o           (ex_jump_cause      ),
+        .jump_from_addr_o       (ex_jump_from_addr  ),
+        .jump_to_addr_o         (ex_jump_to_addr    ),
+
+        .ex_w_reg_enable_o      (ex_w_reg_enable    ),
+        .mem_w_reg_enable_o     (mem_w_reg_enable   ),
+        .w_reg_addr_o           (ex_w_reg_addr      ),
+        .ex_w_reg_data_o        (ex_w_reg_data      ),
+        .w_mem_addr_o           (ex_w_mem_addr      ),
+        .w_mem_enable_o         (ex_w_mem_enable    ),
+        .w_mem_data_o           (ex_w_mem_data      ),
+        .r_mem_addr_o           (ex_r_mem_addr      ),
+        .r_mem_enable_o         (ex_r_mem_enable    ),
+        .data_type_o            (ex_datatype        )
         /*
         .ex_w_csr_addr_o    (ex_w_csr_addr_o    ),
         .ex_w_csr_data_o    (ex_w_csr_data_o    ),
@@ -258,14 +284,16 @@ module ayatsuki_core (
 
     ctrl u_ctrl(
         //.ex_multi_clock_wait_req_i (ex_multi_clock_wait_req_i ),
-        .ex_jump_flush_req_i       (ex_jump_flag            ),
+        .ex_jump_cause_i            (ex_jump_cause          ),
         //.mem_wb_wr_wait_req_i      (mem_wb_wr_wait_req_i      ),
         //.clint_irq_flush_req_i     (clint_irq_flush_req_i     ),
         //.jtag_halt_wait_req_i      (jtag_halt_wait_req_i      ),
-        .ex_jump_flush_addr_i      (ex_jump_addr            ),
-        .hold_ctrl_o               (hold_bus                ),
-        .jump_flag_o               (jump_flag               ),
-        .jump_addr_o               (jump_addr               )
+        .ex_jump_to_addr_i          (ex_jump_to_addr        ),
+        .ex_jump_from_addr_i        (ex_jump_from_addr      ),
+        .hold_ctrl_o                (hold_bus               ),
+        .jump_cause_o               (jump_cause             ),
+        .jump_from_addr_o           (jump_from_addr         ),
+        .jump_to_addr_o             (jump_to_addr           )
     );
 
     wire ex_mw_exw_reg_enable;

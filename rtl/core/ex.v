@@ -30,13 +30,14 @@ module ex (
     // for l/s inst
     input wire [`data_type_bus]         data_type_i,
 
+    // predict_jump
+    input wire                          predict_jump_enable_i,
+
     // Out
     // jump or exception
-    output reg                          jump_enable_o,
-    output reg [`inst_addr_bus]         jump_addr_o,
-
-    output reg                          div_hold_enable_o, //TODO
-    output reg                          inst_invalide_o, // TODO
+    output reg [`jump_cause_bus]        jump_cause_o,
+    output reg [`inst_addr_bus]         jump_from_addr_o,
+    output reg [`inst_addr_bus]         jump_to_addr_o,
 
     // connect to trans: ex_w-ex_data mem_w-read_mem_data
     output reg                          ex_w_reg_enable_o,
@@ -67,6 +68,7 @@ module ex (
 
     reg signed [`data_bus] inst_add_src1;
     reg signed [`data_bus] inst_add_src2;
+    wire [`inst_bus] next_pc_value = r_pc_data_i + `inst_bus_width'b100;
     wire [`data_bus] inst_add_result = inst_add_src1 + inst_add_src2;
     wire [`data_bus] inst_u_lr = r_imm_data_i << 12;
 
@@ -136,8 +138,9 @@ module ex (
     // third step: allocate output
     always @(*) begin
 
-        jump_enable_o = `jump_disable;
-        jump_addr_o = `inst_addr_zero;
+        jump_cause_o = `jump_cause_no;
+        jump_from_addr_o = `inst_addr_zero;
+        jump_to_addr_o = `inst_addr_zero;
         ex_w_reg_enable_o = `write_disable;
         mem_w_reg_enable_o = `write_disable;
         w_reg_addr_o = `reg_zero;
@@ -166,8 +169,18 @@ module ex (
                 data_type_o = `datatype_word;
             end
             `inst_b: begin
-                jump_enable_o = (alu_result) ? `jump_enable : `jump_disable;
-                jump_addr_o = inst_add_result; // FIXME
+                // wrong prediction
+                if (predict_jump_enable_i == `predict_jump_enable && alu_result[0] == 1'b0) begin
+                    jump_cause_o = `jump_cause_predict_yes_but_no; 
+                    jump_to_addr_o = next_pc_value;
+                    jump_from_addr_o = r_pc_data_i;
+                end else if (predict_jump_enable_i == `predict_jump_disable && alu_result[0] == 1'b1) begin
+                    jump_cause_o = `jump_cause_predict_no_but_yes;
+                    jump_to_addr_o = inst_add_result;
+                    jump_from_addr_o = r_pc_data_i;
+                end else begin
+                    jump_cause_o = `jump_cause_no;
+                end
             end
             `inst_l: begin
                 mem_w_reg_enable_o = `write_enable;
@@ -185,8 +198,8 @@ module ex (
                 data_type_o = data_type_i;
             end
             `inst_jal: begin
-                jump_enable_o = `jump_enable;
-                jump_addr_o = alu_result;
+                jump_cause_o = `jump_cause_nocondition;
+                jump_to_addr_o = alu_result;
 
                 ex_w_reg_enable_o = `write_enable;
                 w_reg_addr_o = w_reg_addr_i;
@@ -195,8 +208,8 @@ module ex (
                 data_type_o = `datatype_word;
             end
             `inst_jalr: begin
-                jump_enable_o = `jump_enable;
-                jump_addr_o = alu_result;
+                jump_cause_o = `jump_cause_nocondition;
+                jump_to_addr_o = alu_result;
 
                 ex_w_reg_enable_o = `write_enable;
                 w_reg_addr_o = w_reg_addr_i;

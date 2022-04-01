@@ -16,8 +16,9 @@ module ctrl (
     // when a jump inst is executed, ex send a req to ctrl
     // because the pipeline has to jump, so all of the data is wrong, flush if_id id_ex
     // but ex_mem has to continue because the next step is write some callback register
-    input wire                      ex_jump_flush_req_i,
-    input wire [`inst_addr_bus]     ex_jump_flush_addr_i,
+    input wire [`jump_cause_bus]    ex_jump_cause_i,
+    input wire [`inst_addr_bus]     ex_jump_from_addr_i,
+    input wire [`inst_addr_bus]     ex_jump_to_addr_i,
 
     // when a mem_wr block happened, mem_wb send a req to wait
     // because this is the last step, so the whole pipeline has to wait
@@ -30,8 +31,9 @@ module ctrl (
     input wire                      jtag_halt_wait_req_i,
     
     output wire [`hold_ctrl_bus]    hold_ctrl_o,
-    output reg                      jump_flag_o,
-    output reg [`inst_addr_bus]     jump_addr_o
+    output reg [`jump_cause_bus]    jump_cause_o,
+    output reg [`inst_addr_bus]     jump_from_addr_o,
+    output reg [`inst_addr_bus]     jump_to_addr_o
 );
 
     reg [`holdpip_bus] hold_pc;
@@ -44,8 +46,11 @@ module ctrl (
 
     // because the hold_req has pri, so we has to use if-else structure
     always @(*) begin
-        jump_addr_o = `inst_addr_zero;
-        jump_flag_o = `jump_disable;
+        jump_to_addr_o = `inst_addr_zero;
+        jump_from_addr_o = `inst_addr_zero;
+        jump_cause_o = `jump_cause_no;
+
+        // HOLD AND WAIT
         if (mem_wb_wr_wait_req_i == `req_enable) begin
             hold_pc = `hold_wait;
             hold_if_id = `hold_wait;
@@ -56,9 +61,16 @@ module ctrl (
             hold_if_id = `hold_wait;
             hold_id_ex = `hold_wait;
             hold_ex_memwb = `hold_flush;
-        end else if (ex_jump_flush_req_i == `req_enable) begin
-            jump_addr_o = ex_jump_flush_addr_i;
-            jump_flag_o = `jump_enable;
+            
+        // JUMP AND FLUSH
+        end else if (ex_jump_cause_i == `jump_cause_predict_yes_but_no ||
+                    ex_jump_cause_i == `jump_cause_predict_no_but_yes ||
+                    ex_jump_cause_i == `jump_cause_nocondition ) begin
+            
+            jump_from_addr_o = ex_jump_from_addr_i;
+            jump_to_addr_o = ex_jump_to_addr_i;
+            jump_cause_o = ex_jump_cause_i;
+
             hold_pc = `hold_wait;
             hold_if_id = `hold_flush;
             hold_id_ex = `hold_flush;
