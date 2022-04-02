@@ -234,4 +234,4 @@
 `define inst_ebreak_imm 12'b1
 
 // Memory Size
-`define sp_init 32'd2048
+`define sp_init 32'h800

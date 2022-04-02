@@ -1,11 +1,16 @@
 //~ `New testbench
 `timescale  1ns / 1ps
+`ifndef __ISE__
 `include "rtl/core/ayatsuki_core.v"
+`endif
+`ifdef __ISE__
+`include "../core/define.v"
+`endif
 
 module tb_core;
 
 // pc_ifid Parameters
-parameter PERIOD  = 10;
+parameter PERIOD  = 40;
 
 // pc_ifid Inputs
 reg clk = 0 ;
@@ -62,11 +67,11 @@ ayatsuki_core core(
 integer i;
 initial
 begin
-    for (i = 0;i < 2048; i ++) begin
+    for (i = 0;i < 2048; i = i + 1) begin
         inst_rom[i] = 8'b0;
         data_ram[i] = 8'b0;
     end
-    $readmemb("rom/rom.txt", inst_rom);
+    $readmemb("D:/programming/verilog/AyaTsuki_RISC_V/rom/rom.txt", inst_rom);
     forever #(PERIOD/2)  begin 
         clk=~clk;
     end

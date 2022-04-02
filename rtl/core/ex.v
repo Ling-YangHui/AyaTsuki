@@ -128,7 +128,7 @@ module ex (
         endcase
     end
 
-    alu u_alu(
+    alu u_alu(  
         .alu_inst_i   (alu_inst_i   ),
         .alu_src1_i   (alu_src1     ),
         .alu_src2_i   (alu_src2     ),
