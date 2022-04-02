@@ -14,6 +14,7 @@
 
 
 // Bus line width
+
 `define inst_bus 31:0
 `define inst_bus_width 32
 
@@ -122,7 +123,7 @@
 `define datatype_no 3'b000
 `define reg_zero 5'b0
 `define data_zero 32'b0
-`define inst_nop 32'b00000000000000000000000000010011
+`define inst_nop 32'h00000013 // ADDI x0, x0, 0
 `define mem_addr_zero 32'b0
 `define csr_zero 32'b0
 `define inst_addr_zero 32'b0

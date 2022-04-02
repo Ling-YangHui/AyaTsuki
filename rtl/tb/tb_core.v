@@ -28,10 +28,15 @@ wire [`mem_addr_bus] mem_r_addr;
 wire [`data_bus] mem_w_data;
 reg [`data_bus] mem_r_data = `data_zero;
 
-always @(*) begin
-    inst_i = `inst_nop;
-    if (inst_addr_o <= 2044)
-        inst_i = {inst_rom[inst_addr_o], inst_rom[inst_addr_o+1], inst_rom[inst_addr_o+2], inst_rom[inst_addr_o+3]};
+always @(posedge clk) begin
+    if (~rst_n) begin
+        inst_i <= `inst_nop;
+    end else begin
+        if (inst_addr_o <= 2044)
+            inst_i <= {inst_rom[inst_addr_o], inst_rom[inst_addr_o+1], inst_rom[inst_addr_o+2], inst_rom[inst_addr_o+3]};
+        else 
+            inst_i <= `inst_nop;
+    end
 end
 
 always @(*) begin
@@ -86,6 +91,7 @@ initial
 begin
     #(PERIOD*2) rst_n  =  1;
     repeat(100) @(negedge clk);
+    $display("0x%x 0x%x 0x%x 0x%x", data_ram[0], data_ram[1], data_ram[2], data_ram[3]);
     $finish;
 end
 

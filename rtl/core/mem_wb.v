@@ -8,6 +8,9 @@
 `include "rtl/core/define.v"
 `endif
 
+`ifdef __ISE__
+`include "define.v"
+`endif
 
 // FIXME 
 // The inst of load/store byte/halfword need to be support

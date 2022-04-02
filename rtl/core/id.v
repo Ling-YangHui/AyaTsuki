@@ -8,6 +8,10 @@
 `include "rtl/core/define.v"
 `endif
 
+`ifdef __ISE__
+`include "define.v"
+`endif
+
 module id (
     //TODO
     input wire [`inst_bus]              inst_i,

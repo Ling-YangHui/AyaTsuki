@@ -9,6 +9,10 @@
 `include "rtl/core/alu.v"
 `endif
 
+`ifdef __ISE__
+`include "define.v"
+`endif
+
 module ex (
     // resource data input
     input wire [`reg_data_bus]          r_reg_data_1_i,

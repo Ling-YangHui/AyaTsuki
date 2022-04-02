@@ -8,6 +8,10 @@
 `include "rtl/core/define.v"
 `endif
 
+`ifdef __ISE__
+`include "define.v"
+`endif
+
 module regs (
     input wire                  clk,
     input wire                  rst_n,

@@ -18,6 +18,10 @@
 `include "rtl/core/ex_memwb.v"
 `endif
 
+`ifdef __ISE__
+`include "define.v"
+`endif
+
 module ayatsuki_core (
     input wire                      clk,
     input wire                      rst_n,

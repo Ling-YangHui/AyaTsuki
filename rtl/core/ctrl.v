@@ -8,6 +8,10 @@
 `include "rtl/core/define.v"
 `endif 
 
+`ifdef __ISE__
+`include "define.v"
+`endif
+
 module ctrl (
     // when an inst need multi-clock to finish, we need to let pc if_id id_ex to wait
     // but the ex_mem can flush because the read & write will not impact the multi_clock inst

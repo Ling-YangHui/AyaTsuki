@@ -6,10 +6,6 @@
 `ifndef __PIPE_REG_S__
 `define __PIPE_REG_S__
 
-`ifndef __ISE__
-`include "rtl/core/global_conf.v"
-`endif
-
 module pipe_reg_s
 #(
     parameter dw = 32

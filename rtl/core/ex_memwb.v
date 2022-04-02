@@ -8,6 +8,10 @@
 `include "rtl/core/define.v"
 `endif
 
+`ifdef __ISE__
+`include "define.v"
+`endif
+
 module ex_memwb (
     input wire                  clk,
     input wire                  rst_n,
@@ -233,7 +237,7 @@ module ex_memwb (
             w_mem_addr_o, w_mem_enable_o, w_mem_data_o);
         $display("r_mem_addr: 0x%x, r_mem_enable: 0x%x", 
             r_mem_addr_o, r_mem_enable_o);
-        /*
+        
         $display("ex_w_csr_enable: 0x%x, ex_w_csr_data: 0x%x, ex_w_csr_addr: 0x%x", 
             ex_w_csr_enable_o, ex_w_csr_data_o, ex_w_csr_addr_o);
         */
