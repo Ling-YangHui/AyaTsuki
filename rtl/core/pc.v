@@ -26,8 +26,23 @@ module pc (
     input wire                      jtag_reset_i,
     input wire [`inst_addr_bus]     inst_i,
     output wire [`inst_bus]         pc_o,
-    output reg                      predict_to_jump_o
+    output reg                      predict_to_jump_o,
+    output wire [`inst_addr_bus]    now_pc_o
 );
+
+    // Start Counter
+    reg start_cnt;
+    always @(posedge clk) begin
+        if (rst_n == `rst_enable) begin
+            start_cnt <= 2'b0;
+        end else begin
+            if (~start_cnt) begin
+                start_cnt <= 1'b1;
+            end
+        end
+    end
+
+    assign now_pc_o = pc_r;
 
     parameter predict_random = 3'b000;
     parameter predict_jump_light = 3'b001;
@@ -88,7 +103,8 @@ module pc (
         end else begin
             predict_inst_addr <= n_predict_inst_addr;
             predict_inst_result <= n_predict_inst_result;
-            pc_r <= n_pc_r;
+            if (start_cnt)
+                pc_r <= n_pc_r;
         end
     end
 
@@ -193,7 +209,7 @@ module pc (
         end
     end
 
-    assign pc_o = pc_r;
+    assign pc_o = {32{rst_n != `rst_enable}} & ((~start_cnt) ? `inst_addr_zero : n_pc_r);
 
     `ifdef __DEBUG__
     always @(negedge clk) begin

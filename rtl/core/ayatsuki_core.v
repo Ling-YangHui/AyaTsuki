@@ -47,10 +47,11 @@ module ayatsuki_core (
     wire [`jump_cause_bus] jump_cause;
     wire [`inst_addr_bus] jump_from_addr;
     wire [`inst_addr_bus] jump_to_addr;
+    wire [`inst_addr_bus] pc_pre_inst_addr;
     wire [`inst_addr_bus] pc_inst_addr;
     wire pc_predict_jump_enable;
 
-    assign inst_addr_o = pc_inst_addr;
+    assign inst_addr_o = pc_pre_inst_addr;
 
     /*
     pc u_pc(
@@ -73,8 +74,9 @@ module ayatsuki_core (
         .hold_flag_i       (hold_pc                 ),
         //.jtag_reset_i      (jtag_reset_i      ),
         .inst_i            (inst_i                  ),
-        .pc_o              (pc_inst_addr            ),
-        .predict_to_jump_o (pc_predict_jump_enable  )
+        .pc_o              (pc_pre_inst_addr        ),
+        .predict_to_jump_o (pc_predict_jump_enable  ),
+        .now_pc_o          (pc_inst_addr            )
     );
     
 
