@@ -31,18 +31,18 @@ module pc (
 );
 
     // Start Counter
-    reg start_cnt;
-    always @(posedge clk) begin
-        if (rst_n == `rst_enable) begin
-            start_cnt <= 2'b0;
-        end else begin
-            if (~start_cnt) begin
-                start_cnt <= 1'b1;
-            end
-        end
-    end
+    // FIXME 
+    // this is an 'edge' action, and the reset time will affect the function
+    // the solution is to use another register instead of a wire
+    // maybe we can use a register to hold the past pc value
+    // if a jump (predict or from ex) happened, we can change the output addr to the predict value
+    // and the next step the past pcvalue register = the output addr and the now pcvalue = output addr + 4
+    // this will be a good solution, i think
 
-    assign now_pc_o = pc_r;
+    reg [`inst_addr_bus] pc_pre;
+    reg [`inst_addr_bus] n_pc_pre;
+    reg [`inst_addr_bus] n_inst_addr;
+    assign now_pc_o = pc_pre;
 
     parameter predict_random = 3'b000;
     parameter predict_jump_light = 3'b001;
@@ -76,9 +76,9 @@ module pc (
     );
 
     assign inst_addr_pred_cache_pointer = (
-        ({2{~|(predict_inst_addr[`inst_addr_bus_width - 1 : 0] ^ pc_o)}} & 2'b01) | 
-        ({2{~|(predict_inst_addr[`inst_addr_bus_width * 2 - 1 : `inst_addr_bus_width] ^ pc_o)}} & 2'b10) | 
-        ({2{~|(predict_inst_addr[`inst_addr_bus_width * 3 - 1 : `inst_addr_bus_width * 2] ^ pc_o)}} & 2'b11)
+        ({2{~|(predict_inst_addr[`inst_addr_bus_width - 1 : 0] ^ pc_pre)}} & 2'b01) | 
+        ({2{~|(predict_inst_addr[`inst_addr_bus_width * 2 - 1 : `inst_addr_bus_width] ^ pc_pre)}} & 2'b10) | 
+        ({2{~|(predict_inst_addr[`inst_addr_bus_width * 3 - 1 : `inst_addr_bus_width * 2] ^ pc_pre)}} & 2'b11)
     );
     /*
     always @(posedge clk) begin
@@ -100,11 +100,12 @@ module pc (
             pc_r <= `pc_reset;
             predict_inst_addr <= {(3 * `inst_addr_bus_width){1'b1}};
             predict_inst_result <= {9{1'b1}};
+            pc_pre <= `pc_reset;
         end else begin
             predict_inst_addr <= n_predict_inst_addr;
             predict_inst_result <= n_predict_inst_result;
-            if (start_cnt)
-                pc_r <= n_pc_r;
+            pc_r <= n_pc_r;
+            pc_pre <= n_pc_pre;
         end
     end
 
@@ -149,12 +150,18 @@ module pc (
     always @(*) begin
         n_predict_inst_addr = predict_inst_addr;
         n_predict_inst_result = predict_inst_result;
+
         n_pc_r = pc_r + `inst_addr_bus_width 'b100;
+        n_pc_pre = pc_r;
+        n_inst_addr = pc_r;
+
         predict_to_jump_o = `predict_jump_disable;
 
         // This branch is used for jump case
         if (jump_cause_i != `jump_cause_no) begin
-            n_pc_r = jump_to_addr_i;   
+            n_inst_addr = jump_to_addr_i;   
+            n_pc_r = n_inst_addr + `inst_addr_bus_width 'b100;
+            n_pc_pre = n_inst_addr;
             
             case (jump_cause_i)
                 `jump_cause_predict_no_but_yes, `jump_cause_predict_yes_but_no: begin
@@ -184,24 +191,35 @@ module pc (
 
         end else if (hold_flag_i != `hold_no) begin
             n_pc_r = pc_r;
+            n_pc_pre = pc_pre;
+            n_inst_addr = pc_pre;
         end else begin
             if (is_inst_b) begin
                 if (
-                    (inst_addr_pred_cache_pointer==2'b01&&inst_jump_ornot(predict_inst_result[2:0], pc_o[2])) 
-                    ||(inst_addr_pred_cache_pointer==2'b10&&inst_jump_ornot(predict_inst_result[5:3], pc_o[2])) 
-                    ||(inst_addr_pred_cache_pointer==2'b11&&inst_jump_ornot(predict_inst_result[8:6], pc_o[2])) 
+                    (inst_addr_pred_cache_pointer==2'b01&&inst_jump_ornot(predict_inst_result[2:0], pc_pre[2])) 
+                    ||(inst_addr_pred_cache_pointer==2'b10&&inst_jump_ornot(predict_inst_result[5:3], pc_pre[2])) 
+                    ||(inst_addr_pred_cache_pointer==2'b11&&inst_jump_ornot(predict_inst_result[8:6], pc_pre[2])) 
                 ) begin
-                    n_pc_r = $signed(pc_r) + imm_b;
+                    n_inst_addr = $signed(pc_pre) + imm_b;
+                    n_pc_r = n_inst_addr + `inst_addr_bus_width 'b100;
+                    n_pc_pre = n_inst_addr;
+
                     predict_to_jump_o = `predict_jump_enable;
 
                 end else if (inst_addr_pred_cache_pointer == 2'b00) begin          
                     n_predict_inst_addr = {pc_r, predict_inst_addr[3 * `inst_addr_bus_width - 1 : `inst_addr_bus_width]};
                     if (pc_r[2]) begin
-                        n_pc_r = $signed(pc_r) + imm_b;
+                        n_inst_addr = $signed(pc_pre) + imm_b;
+                        n_pc_r = n_inst_addr + `inst_addr_bus_width 'b100;
+                        n_pc_pre = n_inst_addr;
+
                         n_predict_inst_result = {predict_jump_light, predict_inst_result[8: 3]};
                         predict_to_jump_o = `predict_jump_enable;                    
                     end else begin
                         n_pc_r = pc_r + `inst_addr_bus_width 'b100;
+                        n_pc_pre = pc_r;
+                        n_inst_addr = pc_r;
+
                         n_predict_inst_result = {predict_nojump_light, predict_inst_result[8: 3]};
                     end
                 end
@@ -209,7 +227,7 @@ module pc (
         end
     end
 
-    assign pc_o = {32{rst_n != `rst_enable}} & ((~start_cnt) ? `inst_addr_zero : n_pc_r);
+    assign pc_o = n_inst_addr;
 
     `ifdef __DEBUG__
     always @(negedge clk) begin
