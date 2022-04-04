@@ -150,11 +150,9 @@ module pc (
     always @(*) begin
         n_predict_inst_addr = predict_inst_addr;
         n_predict_inst_result = predict_inst_result;
-
         n_pc_r = pc_r + `inst_addr_bus_width 'b100;
         n_pc_pre = pc_r;
         n_inst_addr = pc_r;
-
         predict_to_jump_o = `predict_jump_disable;
 
         // This branch is used for jump case
@@ -165,13 +163,12 @@ module pc (
             
             case (jump_cause_i)
                 `jump_cause_predict_no_but_yes, `jump_cause_predict_yes_but_no: begin
-                    if (jump_addr_pred_cache_pointer == 2'b01) begin
-                        n_predict_inst_result[2:0] = next_result(predict_inst_result[2:0], jump_cause_i);
-                    end else if (jump_addr_pred_cache_pointer == 2'b10) begin
-                        n_predict_inst_result[5:3] = next_result(predict_inst_result[5:3], jump_cause_i);
-                    end else if (jump_addr_pred_cache_pointer == 2'b11) begin
-                        n_predict_inst_result[8:6] = next_result(predict_inst_result[8:6], jump_cause_i);
-                    end
+                    case (jump_addr_pred_cache_pointer)
+                        2'b01: n_predict_inst_result[2:0] = next_result(predict_inst_result[2:0], jump_cause_i);
+                        2'b10: n_predict_inst_result[5:3] = next_result(predict_inst_result[5:3], jump_cause_i);
+                        2'b11: n_predict_inst_result[5:3] = next_result(predict_inst_result[5:3], jump_cause_i);
+                        2'b00: n_predict_inst_result = predict_inst_result;
+                    endcase
                 end
                 `jump_cause_nocondition: begin
                     

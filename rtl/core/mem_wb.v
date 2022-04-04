@@ -29,8 +29,9 @@ module mem_wb (
     input wire                  w_mem_enable_i,
     input wire [`mem_data_bus]  w_mem_data_i,
     // read_mem
-    input wire [`mem_addr_bus]  r_mem_addr_i,
-    input wire                  r_mem_enable_i,
+    // Because of the feature of BRAM, the read req is sent on ex
+    // input wire [`mem_addr_bus]  r_mem_addr_i,
+    // input wire                  r_mem_enable_i,
 
     // data type
     input wire [`data_type_bus] data_type_i,
@@ -39,11 +40,11 @@ module mem_wb (
     input wire [`mem_data_bus]  r_mem_data_i, // read from mem
     output wire [`mem_addr_bus] w_mem_addr_o,
     output wire [`mem_data_bus] w_mem_data_o,
-    output wire [`mem_addr_bus] r_mem_addr_o,
+    // output wire [`mem_addr_bus] r_mem_addr_o,
     output wire                 w_mem_enable_o,
-    output wire                 r_mem_enable_o,
+    // output wire                 r_mem_enable_o,
 
-    output wire                 mem_enable_o,
+    // output wire                 mem_enable_o,
 
     // reg
     output wire [`reg_addr_bus] w_reg_addr_o,
@@ -62,14 +63,11 @@ module mem_wb (
 );
 
     // enable and addr
-    assign mem_enable_o = (
-        (w_mem_enable_i == `write_enable || r_mem_enable_i == `read_enable) ?
-        `mem_enable : `mem_disable
-    );
+    // assign mem_enable_o = ((w_mem_enable_i == `write_enable) ? `mem_enable : `mem_disable);
     assign w_mem_addr_o = w_mem_addr_i;
     assign w_mem_enable_o = w_mem_enable_i;
-    assign r_mem_addr_o = r_mem_addr_i;
-    assign r_mem_enable_o = r_mem_enable_i;
+    // assign r_mem_addr_o = r_mem_addr_i;
+    // assign r_mem_enable_o = r_mem_enable_i;
 
     assign w_reg_enable_o = (
         (ex_w_reg_enable_i == `write_enable || mem_w_reg_enable_i == `write_enable) ? 

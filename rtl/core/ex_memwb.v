@@ -30,8 +30,9 @@ module ex_memwb (
     input wire                  w_mem_enable_i,
     input wire [`mem_data_bus]  w_mem_data_i,
     // read_mem
-    input wire [`mem_addr_bus]  r_mem_addr_i,
-    input wire                  r_mem_enable_i,
+    // Because of the feature of BRAM, the read req is sent on ex
+    // input wire [`mem_addr_bus]  r_mem_addr_i,
+    // input wire                  r_mem_enable_i,
 
     // data type
     input wire [`data_type_bus] data_type_i,
@@ -49,8 +50,9 @@ module ex_memwb (
     output wire                 w_mem_enable_o,
     output wire [`mem_data_bus] w_mem_data_o,
     // read_mem
-    output wire [`mem_addr_bus] r_mem_addr_o,
-    output wire                 r_mem_enable_o,
+    // Because of the feature of BRAM, the read req is sent on ex
+    // output wire [`mem_addr_bus] r_mem_addr_o,
+    // output wire                 r_mem_enable_o,
 
     // data type
     output wire [`data_type_bus] data_type_o
@@ -152,6 +154,7 @@ module ex_memwb (
         .data_o         (w_mem_data_o       )
     );
 
+    /*
     pipe_reg_s #(
         .dw (`mem_addr_bus_width)
     ) pipe_r_mem_addr (
@@ -175,6 +178,7 @@ module ex_memwb (
         .data_i         (r_mem_enable_i     ),
         .data_o         (r_mem_enable_o     )
     );
+    */
     
     pipe_reg_s #(
         .dw (`data_type_bus_width)

@@ -35,7 +35,9 @@ module ayatsuki_core (
     output wire [`mem_addr_bus]     mem_w_addr_o,
     output wire [`mem_addr_bus]     mem_r_addr_o,
     input wire [`mem_data_bus]      mem_data_i,
-    output wire [`mem_data_bus]     mem_data_o
+    output wire [`mem_data_bus]     mem_data_o,
+
+    input wire                      irq_req_i
 );
 
     wire [`hold_ctrl_bus] hold_bus;
@@ -309,8 +311,8 @@ module ayatsuki_core (
     wire [`mem_addr_bus] ex_mw_w_mem_addr;
     wire ex_mw_w_mem_enable;
     wire [`data_bus] ex_mw_w_mem_data;
-    wire [`mem_addr_bus] ex_mw_r_mem_addr;
-    wire ex_mw_r_mem_enable;
+    // wire [`mem_addr_bus] ex_mw_r_mem_addr;
+    // wire ex_mw_r_mem_enable;
     wire [`data_type_bus] ex_mw_datatype;
 
     ex_memwb u_ex_memwb(
@@ -325,8 +327,8 @@ module ayatsuki_core (
         .w_mem_addr_i       (ex_w_mem_addr      ),
         .w_mem_enable_i     (ex_w_mem_enable    ),
         .w_mem_data_i       (ex_w_mem_data      ),
-        .r_mem_addr_i       (ex_r_mem_addr      ),
-        .r_mem_enable_i     (ex_r_mem_enable    ),
+        // .r_mem_addr_i       (ex_r_mem_addr      ),
+        // .r_mem_enable_i     (ex_r_mem_enable    ),
         .data_type_i        (ex_datatype        ),
 
         .ex_w_reg_enable_o  (ex_mw_exw_reg_enable   ),
@@ -336,8 +338,8 @@ module ayatsuki_core (
         .w_mem_addr_o       (ex_mw_w_mem_addr       ),
         .w_mem_enable_o     (ex_mw_w_mem_enable     ),
         .w_mem_data_o       (ex_mw_w_mem_data       ),
-        .r_mem_addr_o       (ex_mw_r_mem_addr       ),
-        .r_mem_enable_o     (ex_mw_r_mem_enable     ),
+        // .r_mem_addr_o       (ex_mw_r_mem_addr       ),
+        // .r_mem_enable_o     (ex_mw_r_mem_enable     ),
         .data_type_o        (ex_mw_datatype         )
     );
 
@@ -350,21 +352,26 @@ module ayatsuki_core (
         .w_mem_addr_i       (ex_mw_w_mem_addr       ),
         .w_mem_enable_i     (ex_mw_w_mem_enable     ),
         .w_mem_data_i       (ex_mw_w_mem_data       ),
-        .r_mem_addr_i       (ex_mw_r_mem_addr       ),
-        .r_mem_enable_i     (ex_mw_r_mem_enable     ),
+        // .r_mem_addr_i       (ex_mw_r_mem_addr       ),
+        // .r_mem_enable_i     (ex_mw_r_mem_enable     ),
         .data_type_i        (ex_mw_datatype         ),
 
         .r_mem_data_i       (mem_data_i             ),
         .w_mem_addr_o       (mem_w_addr_o           ),
         .w_mem_data_o       (mem_data_o             ),
-        .r_mem_addr_o       (mem_r_addr_o           ),
+        // .r_mem_addr_o       (mem_r_addr_o           ),
         .w_mem_enable_o     (mem_w_enable_o         ),
-        .r_mem_enable_o     (mem_r_enable_o         ),
-        .mem_enable_o       (mem_enable_o           ),
+        // .r_mem_enable_o     (mem_r_enable_o         ),
+        // .mem_enable_o       (mem_enable_o           ),
         .w_reg_addr_o       (w_reg_addr             ),
         .w_reg_data_o       (w_reg_data             ),
         .w_reg_enable_o     (w_reg_enable           )
     );
+
+    // Because of the feature of BRAM, the read req is sent on ex
+    assign mem_r_addr_o = ex_r_mem_addr;
+    assign mem_r_enable_o = ex_r_mem_enable;
+    assign mem_enable_o =  (mem_w_enable_o == `write_enable || mem_r_enable_o == `read_enable) ? `mem_enable : `mem_disable;
     
 endmodule
 

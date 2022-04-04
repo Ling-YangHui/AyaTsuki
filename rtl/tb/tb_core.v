@@ -35,14 +35,20 @@ always @(posedge clk) begin
         if (inst_addr_o <= 2044)
             inst_i <= {inst_rom[inst_addr_o], inst_rom[inst_addr_o+1], inst_rom[inst_addr_o+2], inst_rom[inst_addr_o+3]};
         else 
-            inst_i <= `inst_nop;
+            inst_i <= `inst_nop;    
     end
 end
 
-always @(*) begin
-    mem_r_data = `data_zero;
-    if (mem_r_addr <= 2044 && mem_enable && mem_r_enable)
-        mem_r_data = {data_ram[mem_r_addr], data_ram[mem_r_addr+1], data_ram[mem_r_addr+2], data_ram[mem_r_addr+3]};
+always @(posedge clk) begin
+    if (~rst_n) begin
+        mem_r_data <= `data_zero;
+    end else begin
+        if (mem_r_addr <= 2044) 
+            mem_r_data <= {data_ram[mem_r_addr], data_ram[mem_r_addr+1], data_ram[mem_r_addr+2], data_ram[mem_r_addr+3]};
+        else
+            mem_r_data <= `data_zero;
+    end
+    
 end
 
 always @(posedge clk) begin
