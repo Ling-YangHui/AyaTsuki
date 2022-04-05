@@ -8,6 +8,8 @@
 `include "rtl/core/ayatsuki_core.v"
 `include "rtl/utils/digit_tube.v"
 `include "rtl/utils/div_clk.v"
+`include "AyaTsuki_ISE/ipcore_dir/memory.v"
+`include "AyaTsuki_ISE/ipcore_dir/rom.v"
 `endif
 
 `ifdef __ISE__
@@ -72,23 +74,23 @@ module ayatsuki_soc (
 	 
 
 	memory u_memory (
-        .clka		(div_clk	    ), // input clka
-        .ena		(mem_enable		), // input ena
-        .wea		(mem_w_enable	), // input [0 : 0] wea
-        .addra		(mem_w_addr >> 2		), // input [8 : 0] addra
-        .dina		(mem_w_data		), // input [31 : 0] dina
+        .clka		(div_clk	        ), // input clka
+        .ena		(mem_enable		    ), // input ena
+        .wea		(mem_w_enable	    ), // input [0 : 0] wea
+        .addra		(mem_w_addr >> 2    ), // input [8 : 0] addra
+        .dina		(mem_w_data		    ), // input [31 : 0] dina
         .clkb		(div_clk			), // input clkb
         .rstb		(~div_rst_n			), // input rstb
-        .enb		(mem_r_enable	), // input enb
-        .addrb		(mem_r_addr >> 2		), // input [8 : 0] addrb
-        .doutb		(mem_r_data		)  // output [31 : 0] doutb
+        .enb		(mem_r_enable	    ), // input enb
+        .addrb		(mem_r_addr >> 2	), // input [8 : 0] addrb
+        .doutb		(mem_r_data		    )  // output [31 : 0] doutb
 	);
     
 	rom u_rom (
-        .clka		(div_clk		), // input clka
+        .clka		(div_clk		    ), // input clka
         .rsta		(~div_rst_n			), // input rsta
         .addra		(inst_addr >> 2		), // input [8 : 0] addra
-        .douta		(inst			)  // output [31 : 0] douta
+        .douta		(inst			    )  // output [31 : 0] douta
     );
 
     wire per_clk;
