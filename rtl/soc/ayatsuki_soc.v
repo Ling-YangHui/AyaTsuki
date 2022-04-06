@@ -22,7 +22,8 @@ module ayatsuki_soc (
     input wire          clk,
     input wire          rst_n,
     output wire [1: 0]  data_sel,
-    output wire [7: 0]  data_driver
+    output wire [7: 0]  data_driver,
+    output wire         uart_tx
 );
 
     reg [1:0] cnt;
@@ -118,7 +119,8 @@ module ayatsuki_soc (
         .uart_r_enable_i (bus_r_enable  ),
         .uart_w_enable_i (bus_w_enable  ),
 
-        .uart_data_o     (uart_r_data   )
+        .uart_data_o     (uart_r_data   ),
+        .uart_tx         (uart_tx       )
         // .uart_irq_o      (uart_irq_o    )
     );
     
