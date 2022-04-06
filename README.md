@@ -12,6 +12,7 @@ AyaTsuki是一款基于Risc-V指令集的CPU，具有四级流水线（IF-ID-EX-
 * 已经完成了分支预测，预测准确率在70%左右。功能发布在version 0.1.1-alpha分支中
 * 完成了BRAM的外部兼容，可以进一步对总线的时钟进行兼容匹配
 * 完成了FPGA上移植，已经在Xilinx Spartan3E FPGA上成功运行
+* 完成UART串口、TIM定时器的外设设计，大致确定了外设的总线机制
 
 ## 项目计划
 
@@ -19,7 +20,7 @@ AyaTsuki是一款基于Risc-V指令集的CPU，具有四级流水线（IF-ID-EX-
 * 完成中断和CPU异常机制（clint模块和ctrl模块兼容）
 * 完善CPU权限状态，争取兼容类Unix操作系统（csr寄存器机制）
 * 完成RIB总线机制，以支持外设的开发（ctrl模块等待机制）
-* 完成UART串口、TIM定时器以及FFT快速傅里叶变换的外设
+* FFT快速傅里叶变换的外设
 * 引入自行设计的CPU调试和监视模块
 
 ## 版本迭代
