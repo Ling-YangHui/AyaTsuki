@@ -12,6 +12,7 @@
 `include "AyaTsuki_ISE/ipcore_dir/rom.v"
 `include "rtl/perip/tim.v"
 `include "rtl/perip/uart.v"
+`include "rtl/perip/load.v"
 `endif
 
 `ifdef __ISE__
@@ -62,6 +63,10 @@ module ayatsuki_soc (
     wire [`data_bus] mem_r_data;
     wire [`data_bus] tim_r_data;
     wire [`data_bus] uart_r_data;
+
+    wire [`inst_addr_bus] load_inst_addr;
+    wire [`inst_bus] load_inst_data;
+    wire load_inst_w_enable;
 
     reg [`mem_addr_bus] past_r_addr_r;
     always @(posedge div_clk) begin
@@ -123,8 +128,6 @@ module ayatsuki_soc (
         .uart_tx         (uart_tx       )
         // .uart_irq_o      (uart_irq_o    )
     );
-    
-    
 
 	memory u_memory (
         .clka		(div_clk	        ), // input clka
@@ -164,7 +167,6 @@ module ayatsuki_soc (
             end
         end
     end
-	
 
     digit_tube u_digit_tube(
     	.per_clk (per_clk ),
@@ -175,6 +177,17 @@ module ayatsuki_soc (
         .sel     (data_sel     ),
         .driver  (data_driver  )
     );
+
+    load u_load(
+    	.clk             (div_clk           ),
+        .rst_n           (div_rst_n         ),
+        .sclk_i          (sclk_i            ),
+        .sdin_i          (sdin_i            ),
+        .inst_addr_o     (load_inst_addr    ),
+        .inst_data_o     (load_inst_data    ),
+        .inst_w_enable_o (load_inst_w_enable)
+    );
+    
     
     
 endmodule

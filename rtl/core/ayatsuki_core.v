@@ -371,7 +371,8 @@ module ayatsuki_core (
     // Because of the feature of BRAM, the read req is sent on ex
     assign mem_r_addr_o = ex_r_mem_addr;
     assign mem_r_enable_o = ex_r_mem_enable;
-    assign mem_enable_o =  (mem_w_enable_o == `write_enable || mem_r_enable_o == `read_enable) ? `mem_enable : `mem_disable;
+    assign mem_enable_o =  (mem_w_enable_o == `write_enable || mem_r_enable_o == `read_enable) ?
+         `mem_enable : `mem_disable;
     
 endmodule
 

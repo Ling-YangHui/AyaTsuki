@@ -10,7 +10,7 @@
 `endif 
 
 `ifdef __ISE__
-`include "../rtl/core/define.v"
+`include "../core/define.v"
 `endif 
 
 module uart (
@@ -73,6 +73,7 @@ module uart (
         .div_clk (uart_clk  )
     );
     
+    // The divide clk should be reset by negedge edge of rst
     reg tx_parity;
     always @(posedge uart_clk, negedge rst_n) begin
         if (rst_n == `rst_enable) begin
