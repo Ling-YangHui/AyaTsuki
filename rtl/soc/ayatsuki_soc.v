@@ -125,7 +125,7 @@ module ayatsuki_soc (
         .uart_w_enable_i (bus_w_enable  ),
 
         .uart_data_o     (uart_r_data   ),
-        .uart_tx         (uart_tx       )
+        .tx              (uart_tx       )
         // .uart_irq_o      (uart_irq_o    )
     );
 
@@ -177,7 +177,7 @@ module ayatsuki_soc (
         .sel     (data_sel     ),
         .driver  (data_driver  )
     );
-
+    /*
     load u_load(
     	.clk             (div_clk           ),
         .rst_n           (div_rst_n         ),
@@ -187,6 +187,7 @@ module ayatsuki_soc (
         .inst_data_o     (load_inst_data    ),
         .inst_w_enable_o (load_inst_w_enable)
     );
+    */
     
     
     

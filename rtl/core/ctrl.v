@@ -28,9 +28,9 @@ module ctrl (
     // because this is the last step, so the whole pipeline has to wait
     input wire                      mem_wb_wr_wait_req_i,
 
-    // I DONT KNOW
-    input wire                      clint_irq_flush_req_i,
-    
+    // when a clint_irq_flush happened, the cpu has to flush the pc(stop) if-id id-ex 
+    // and let the ex_memwb continue to run in order to finish the last step
+    input wire [`irq_bus]           irq_flush_req_addr_i,    
     // I DONT KNOW
     input wire                      jtag_halt_wait_req_i,
     
@@ -65,6 +65,7 @@ module ctrl (
             hold_if_id = `hold_wait;
             hold_id_ex = `hold_wait;
             hold_ex_memwb = `hold_flush;
+        // end else if (irq_flush_req_enable_i) begin
             
         // JUMP AND FLUSH
         // Jump for normal reason
@@ -80,11 +81,6 @@ module ctrl (
             hold_if_id = `hold_flush;
             hold_id_ex = `hold_flush;
             hold_ex_memwb = `hold_no; // because the next step may has some operation to write register
-        /*
-        end else if (clint_irq_flush_req_i == `req_enable) begin 
-            
-        end else if (jtag_halt_wait_req_i == `req_enable) begin
-        */
         end else begin
             hold_pc = `hold_no;
             hold_if_id = `hold_no;

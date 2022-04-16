@@ -67,7 +67,7 @@
 `define data_type_bus_width 3
 
 `define jump_cause_bus 2:0
-`define jump_cause_bus_width
+`define jump_cause_bus_width 3
 
 // Default data
 `define pc_reset 32'b0

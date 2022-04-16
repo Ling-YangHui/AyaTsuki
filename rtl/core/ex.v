@@ -24,7 +24,7 @@ module ex (
     // alu inst
     input wire [`alu_inst_bus]          alu_inst_i,
     
-    // inst input
+    // inst input   
     input wire [`inst_bus]              r_inst_i,
 
     // result target input
@@ -143,7 +143,7 @@ module ex (
     always @(*) begin
 
         jump_cause_o = `jump_cause_no;
-        jump_from_addr_o = `inst_addr_zero;
+        jump_from_addr_o = r_pc_data_i;
         jump_to_addr_o = `inst_addr_zero;
         ex_w_reg_enable_o = `write_disable;
         mem_w_reg_enable_o = `write_disable;
@@ -177,11 +177,9 @@ module ex (
                 if (predict_jump_enable_i == `predict_jump_enable && alu_result[0] == 1'b0) begin
                     jump_cause_o = `jump_cause_predict_yes_but_no; 
                     jump_to_addr_o = next_pc_value;
-                    jump_from_addr_o = r_pc_data_i;
                 end else if (predict_jump_enable_i == `predict_jump_disable && alu_result[0] == 1'b1) begin
                     jump_cause_o = `jump_cause_predict_no_but_yes;
                     jump_to_addr_o = inst_add_result;
-                    jump_from_addr_o = r_pc_data_i;
                 end else begin
                     jump_cause_o = `jump_cause_no;
                 end
