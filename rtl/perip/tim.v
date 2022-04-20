@@ -61,15 +61,18 @@ module tim (
    // The divide clk should be reset by negedge edge of rst
     always @(posedge prescaler_clk or negedge rst_n) begin
         if (rst_n == `rst_enable) begin
-            tim_status_r[7: 1] <= 7'b0;
+            tim_status_r[31: 16] <= 16'b0;
+            tim_status_r[0] <= 1'b0;
         end else begin
             if (tim_status_r == tim_overflow) begin
-                tim_status_r[7: 1] <= 7'b0;
+                tim_status_r[31: 16] <= 16'b0;
                 if (tim_enable_irq) begin
+                    tim_status_r[0] <= 1'b1;
                     // TODO: Raise the irq
                 end
             end else begin
-                tim_status_r[7: 1] <= tim_status_r[7: 1] + 7'b1;
+                tim_status_r[31: 16] <= tim_status_r[31: 16] + 16'b1;
+                tim_status_r[0] <= 1'b0;
             end
         end
     end
@@ -93,12 +96,11 @@ module tim (
     always @(posedge clk) begin
         if (rst_n == `rst_enable) begin
             tim_conf_r <= `data_bus_width'b0;
-            tim_status_r <= `data_bus_width'b0;
         end else begin
             if (tim_w_enable_i) begin
                 case (tim_w_addr_i)
                     `tim_conf_addr: tim_conf_r <= tim_data_i;
-                    `tim_status_addr: tim_status_r <= tim_data_i;
+                    //`tim_status_addr: tim_status_r <= tim_data_i;
                 endcase
             end
         end
