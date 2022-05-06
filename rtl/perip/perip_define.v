@@ -9,7 +9,8 @@
 `define uart_tx_addr 32'h1000_0100
 `define uart_rx_addr 32'h1000_0104
 `define uart_status_addr 32'h1000_0108
-`define uart_addr_end 32'h1000_0108
+`define uart_baud_addr 32'h1000_010C
+`define uart_addr_end 32'h1000_010C
 
 // IRQ Cause
 `define irq_bus 7:0

@@ -27,6 +27,7 @@ wire [`mem_addr_bus] mem_w_addr;
 wire [`mem_addr_bus] mem_r_addr;
 wire [`data_bus] mem_w_data;
 reg [`data_bus] mem_r_data = `data_zero;
+reg [`irq_bus] irq_req = 0;
 
 always @(posedge clk) begin
     if (~rst_n) begin
@@ -72,7 +73,9 @@ ayatsuki_core core(
     .mem_w_addr_o (mem_w_addr),
     .mem_r_addr_o (mem_r_addr),
     .mem_data_i (mem_r_data),
-    .mem_data_o (mem_w_data)
+    .mem_data_o (mem_w_data),
+
+    .irq_req_i (irq_req)
 );
 
 integer i;
@@ -96,9 +99,21 @@ end
 initial
 begin
     #(PERIOD*2) rst_n  =  1;
+    repeat(50) @(negedge clk);
+    //irq_req <= 1;
+    repeat(1) @(negedge clk);
+    irq_req <= 0;
     repeat(150) @(negedge clk);
     $display("0x%x 0x%x 0x%x 0x%x", data_ram[0], data_ram[1], data_ram[2], data_ram[3]);
     $finish;
+end
+
+integer clk_cnt = 0;
+
+always @(posedge clk) begin
+    if (rst_n == 1) begin
+        clk_cnt <= clk_cnt + 1;
+    end
 end
 
 initial

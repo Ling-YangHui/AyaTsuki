@@ -55,16 +55,16 @@ module ex_memwb (
     // output wire                 r_mem_enable_o,
 
     // data type
-    output wire [`data_type_bus] data_type_o
+    output wire [`data_type_bus] data_type_o,
 
-    /*
+    
     input wire                  ex_w_csr_enable_i,
     input wire [`csr_addr_bus]  ex_w_csr_addr_i,
     input wire [`csr_data_bus]  ex_w_csr_data_i,
     output wire [`csr_addr_bus] ex_w_csr_addr_o,
     output wire [`csr_data_bus] ex_w_csr_data_o,
     output wire                 ex_w_csr_enable_o
-    */
+    
 );
 
     wire hold_flush = (hold_flag_i == `hold_flush);
@@ -192,7 +192,6 @@ module ex_memwb (
         .data_o         (data_type_o        )
     );
 
-    /*
     pipe_reg_s #(
         .dw (`csr_addr_bus_width)
     ) pipe_ex_w_csr_addr (
@@ -200,7 +199,7 @@ module ex_memwb (
         .rst_n          (rst_n              ),
         .set_default    (hold_flush         ),
         .hold_en        (hold_wait          ),
-        .default_data_i (`csr_zero          ),
+        .default_data_i (`csr_mcycle_addr   ),
         .data_i         (ex_w_csr_addr_i    ),
         .data_o         (ex_w_csr_addr_o    )
     );
@@ -228,7 +227,6 @@ module ex_memwb (
         .data_i         (ex_w_csr_enable_i  ),
         .data_o         (ex_w_csr_enable_o  )
     );
-    */
 
     
     `ifdef __DEBUG__

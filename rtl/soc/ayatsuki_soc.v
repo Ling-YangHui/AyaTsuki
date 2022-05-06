@@ -27,6 +27,7 @@ module ayatsuki_soc (
     output wire         uart_tx
 );
 
+    // Divide clk 10MHz
     reg [1:0] cnt;
     reg div_clk;
     reg div_rst_n;
@@ -36,12 +37,15 @@ module ayatsuki_soc (
             div_clk <= 0;
             div_rst_n <= 0;
         end else begin
-            if (cnt == 2'b11) begin
+            if (cnt == 2'b11 && div_clk == 1'b1) begin
                 cnt <= 0;
-                div_clk <= ~div_clk;
-                if (div_rst_n == 0 && div_clk) begin
-                    div_rst_n <= 1;
+                div_clk <= 1'b0;
+                if (div_rst_n == 1'b0) begin
+                    div_rst_n <= 1'b1;
                 end
+            end else if (cnt == 2'b10 && div_clk == 1'b0) begin
+                cnt <= 0;
+                div_clk <= 1'b0;
             end else begin
                 cnt <= cnt + 2'b1;
             end
@@ -87,6 +91,9 @@ module ayatsuki_soc (
             bus_r_data = mem_r_data;
     end
 
+    wire [`irq_bus] irq_req;
+    wire irq_ack;
+
     ayatsuki_core u_ayatsuki_core(
 		.clk            (div_clk        ),
         .rst_n          (div_rst_n      ),
@@ -98,8 +105,10 @@ module ayatsuki_soc (
         .mem_w_addr_o   (bus_w_addr     ),
         .mem_r_addr_o   (bus_r_addr     ),
         .mem_data_i     (bus_r_data     ),
-        .mem_data_o     (bus_w_data     )
-        // .irq_req_i      (irq_req_i      )
+        .mem_data_o     (bus_w_data     ),
+
+        .irq_req_i      (irq_req        ),
+        .irq_response_o (irq_ack        )
     );
 	 
     tim u_tim(
@@ -177,18 +186,5 @@ module ayatsuki_soc (
         .sel     (data_sel     ),
         .driver  (data_driver  )
     );
-    /*
-    load u_load(
-    	.clk             (div_clk           ),
-        .rst_n           (div_rst_n         ),
-        .sclk_i          (sclk_i            ),
-        .sdin_i          (sdin_i            ),
-        .inst_addr_o     (load_inst_addr    ),
-        .inst_data_o     (load_inst_data    ),
-        .inst_w_enable_o (load_inst_w_enable)
-    );
-    */
-    
-    
     
 endmodule

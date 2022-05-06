@@ -45,8 +45,8 @@
 `define mem_addr_bus 31:0
 `define mem_addr_bus_width 32
 
-`define csr_addr_bus 31:0
-`define csr_addr_bus_width 32
+`define csr_addr_bus 2:0
+`define csr_addr_bus_width 3
 
 `define csr_data_bus 31:0
 `define csr_data_bus_width 32
@@ -103,6 +103,9 @@
 `define predict_jump_enable 1'b1
 `define predict_jump_disable 1'b0
 
+`define irq_ack 1'b1
+`define irq_nak 1'b0
+
 // Mem
 `define mem_write 1'b1
 `define mem_read 1'b0
@@ -121,7 +124,8 @@
 `define jump_cause_predict_yes_but_no 3'b010
 `define jump_cause_nocondition 3'b011
 `define jump_cause_interrupt 3'b100
-`define jump_cause_exception 3'b101 
+`define jump_cause_exception 3'b101
+`define jump_cause_exit_interrupt 3'b110 
 
 // Default
 `define datatype_no 3'b000
@@ -237,6 +241,14 @@
 `define inst_ie 7'b1110011
 `define inst_ecall_imm 12'b0
 `define inst_ebreak_imm 12'b1
+`define inst_emret_imm 12'b10
 
 // Memory Size
 `define sp_init 32'h800
+
+// CSR
+`define csr_mcycle_addr 3'b000
+`define csr_mtvec_addr 3'b001
+`define csr_mepc_addr 3'b010
+`define csr_mstatus_addr 3'b011
+`define csr_mie_addr 3'b100

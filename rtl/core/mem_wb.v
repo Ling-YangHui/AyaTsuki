@@ -49,17 +49,17 @@ module mem_wb (
     // reg
     output wire [`reg_addr_bus] w_reg_addr_o,
     output wire [`reg_data_bus] w_reg_data_o,
-    output wire                 w_reg_enable_o
+    output wire                 w_reg_enable_o,
     
     // csr
-    /*
+    
     input wire                  ex_w_csr_enable_i,
     input wire [`csr_addr_bus]  ex_w_csr_addr_i,
     input wire [`csr_data_bus]  ex_w_csr_data_i,
     output wire [`csr_addr_bus] ex_w_csr_addr_o,
     output wire [`csr_data_bus] ex_w_csr_data_o,
     output wire                 ex_w_csr_enable_o
-    */
+    
 );
 
     // enable and addr
@@ -92,10 +92,10 @@ module mem_wb (
         `data_zero 
     );
 
-    /*
+    
     assign ex_w_csr_enable_o = ex_w_csr_enable_i;
     assign ex_w_csr_data_o = ex_w_csr_data_i;
     assign ex_w_csr_addr_o = ex_w_csr_addr_i;
-    */
+    
 
 endmodule

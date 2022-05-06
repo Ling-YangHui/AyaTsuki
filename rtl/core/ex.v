@@ -78,6 +78,7 @@ module ex (
 
     // first step: allocate the data to alu_src
     wire [6:0] opcode_i = r_inst_i[6:0];
+    wire [19:0] inst_e_imm = {r_inst_i[31], r_inst_i[19: 12], r_inst_i[20], r_inst_i[30: 21]};
     
     always @(*) begin
         inst_add_src1 = `data_zero;
@@ -232,6 +233,19 @@ module ex (
                 ex_w_reg_data_o = alu_result;
                 
                 data_type_o = `datatype_word;
+            end
+            `inst_ie: begin
+                case (inst_e_imm)
+                    `inst_ecall_imm: begin
+                        jump_cause_o = `jump_cause_interrupt;
+                    end
+                    `inst_emret_imm: begin
+                        jump_cause_o = `jump_cause_exit_interrupt;
+                    end
+                    default: begin
+                        
+                    end
+                endcase
             end
             default: begin
                 
