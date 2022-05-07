@@ -52,7 +52,6 @@ module mem_wb (
     output wire                 w_reg_enable_o,
     
     // csr
-    
     input wire                  ex_w_csr_enable_i,
     input wire [`csr_addr_bus]  ex_w_csr_addr_i,
     input wire [`csr_data_bus]  ex_w_csr_data_i,

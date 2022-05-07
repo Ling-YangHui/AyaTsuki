@@ -59,6 +59,9 @@ module id (
     wire [4:0] rs1 = inst_i[19:15];
     wire [4:0] rs2 = inst_i[24:20];
     wire [4:0] rd = inst_i[11:7];
+    // support for csr
+    wire csr = imm_i;
+    wire csr_i = rs2;
 
     assign r_reg_data_1_o = r_reg_data_1_i;
     assign r_reg_data_2_o = r_reg_data_2_i;
@@ -195,6 +198,27 @@ module id (
                 alu_inst_o = `alu_add;
                 w_reg_addr_o = rd;
                 imm_data_o = $signed(imm_u);
+            end
+            `inst_csr: begin
+                w_reg_addr_o = rd;
+                r_csr_addr_o = csr;
+                w_csr_addr_o = csr;
+                if (func3[2]) begin
+                    imm_data_o = $unsigned(rs1);
+                end else begin
+                    r_reg_addr_1_o = rs1;
+                end
+                case (func3) 
+                    `inst_csrrw: alu_inst_o = `alu_add;
+                    `inst_csrrs: alu_inst_o = `alu_or;
+                    `inst_csrrc: alu_inst_o = `alu_and;
+                    `inst_csrrwi: alu_inst_o = `alu_add;
+                    `inst_csrrsi: alu_inst_o = `alu_or;
+                    `inst_csrrci: alu_inst_o = `alu_and;
+                    default: begin
+                        
+                    end
+                endcase
             end
             default: begin
                 

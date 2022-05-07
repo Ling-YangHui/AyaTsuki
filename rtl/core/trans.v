@@ -35,12 +35,12 @@ module trans (
     
     // replace(transmit) the register data
     assign r_reg_data_1_o = (
-        (r_reg_addr_1_i == w_reg_addr_i && w_reg_req_i == `write_reg_req_enable) ? 
+        (r_reg_addr_1_i == w_reg_addr_i && w_reg_req_i == `write_reg_req_enable && r_reg_addr_1_i != 0) ? 
         w_reg_data_i : r_reg_data_1_i 
     );
 
     assign r_reg_data_2_o = (
-        (r_reg_addr_2_i == w_reg_addr_i && w_reg_req_i == `write_reg_req_enable) ? 
+        (r_reg_addr_2_i == w_reg_addr_i && w_reg_req_i == `write_reg_req_enable && r_reg_addr_1_i != 0) ? 
         w_reg_data_i : r_reg_data_2_i 
     ); 
 

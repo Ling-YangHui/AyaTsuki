@@ -125,19 +125,36 @@ module ctrl (
                 irq_acknowledge_o = `irq_ack;
             end
         end else if (ex_jump_cause_i == `jump_cause_exit_interrupt) begin
-            w_mstatus_o[31] = 1'b0;
-            w_mstatus_enable = `write_enable;
+            if (r_mstatus_i[31]) begin
+                w_mstatus_o[31] = 1'b0;
+                w_mstatus_enable = `write_enable;
 
-            next_ex_interrupt_req = 1'b0;
+                next_ex_interrupt_req = 1'b0;
 
-            jump_from_addr_o = ex_jump_from_addr_i;
-            jump_to_addr_o = r_mepc_i;
-            jump_cause_o = `jump_cause_exit_interrupt;
+                jump_from_addr_o = ex_jump_from_addr_i;
+                jump_to_addr_o = r_mepc_i;
+                jump_cause_o = `jump_cause_exit_interrupt;
 
-            hold_pc = `hold_wait;
-            hold_if_id = `hold_flush;
-            hold_id_ex = `hold_flush;
-            hold_ex_memwb = `hold_no;
+                hold_pc = `hold_wait;
+                hold_if_id = `hold_flush;
+                hold_id_ex = `hold_flush;
+                hold_ex_memwb = `hold_no;
+            end else begin
+                w_mstatus_o[`irq_bus] = `irq_bus_width'hFF;
+                w_mstatus_o[31] = 1'b1;
+
+                next_ex_interrupt_req = 1'b0;
+
+                jump_from_addr_o = ex_jump_from_addr_i;
+                jump_to_addr_o = `exception_addr;
+                jump_cause_o = `jump_cause_exception;
+
+                hold_pc = `hold_wait;
+                hold_if_id = `hold_flush;
+                hold_id_ex = `hold_flush;
+                hold_ex_memwb = `hold_flush;
+            end
+            
 
         end else if (irq_flush_req_addr_i || next_extern_irq) begin
             if (r_mstatus_i[31]) begin

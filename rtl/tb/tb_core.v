@@ -99,11 +99,7 @@ end
 initial
 begin
     #(PERIOD*2) rst_n  =  1;
-    repeat(50) @(negedge clk);
-    //irq_req <= 1;
-    repeat(1) @(negedge clk);
-    irq_req <= 0;
-    repeat(150) @(negedge clk);
+    repeat(350) @(negedge clk);
     $display("0x%x 0x%x 0x%x 0x%x", data_ram[0], data_ram[1], data_ram[2], data_ram[3]);
     $finish;
 end

@@ -39,10 +39,10 @@ module pc (
     // and the next step the past pcvalue register = the output addr and the now pcvalue = output addr + 4
     // this will be a good solution, i think
 
-    reg [`inst_addr_bus] pc_pre;
-    reg [`inst_addr_bus] n_pc_pre;
-    reg [`inst_addr_bus] n_inst_addr;
-    assign now_pc_o = pc_pre;
+    reg [`inst_addr_bus] pc_pre; // previous pc
+    reg [`inst_addr_bus] n_pc_pre; // next previous pc
+    reg [`inst_addr_bus] n_inst_addr; // now output fetch inst addr
+    assign now_pc_o = pc_pre; // now excuting inst addr
 
     parameter predict_random = 3'b000;
     parameter predict_jump_light = 3'b001;
@@ -54,8 +54,8 @@ module pc (
     // FSM: 5 Status
     // Status: random, jump_light, jump_strong, nojump_light, nojump_strong
 
-    reg [`inst_addr_bus] pc_r;
-    reg [`inst_addr_bus] n_pc_r;
+    reg [`inst_addr_bus] pc_r; // next excute inst addr
+    reg [`inst_addr_bus] n_pc_r; // next for next
 
     reg [3 * `inst_addr_bus_width - 1 : 0] predict_inst_addr;
     reg [3 * `inst_addr_bus_width - 1 : 0] n_predict_inst_addr;
@@ -166,7 +166,7 @@ module pc (
                     case (jump_addr_pred_cache_pointer)
                         2'b01: n_predict_inst_result[2:0] = next_result(predict_inst_result[2:0], jump_cause_i);
                         2'b10: n_predict_inst_result[5:3] = next_result(predict_inst_result[5:3], jump_cause_i);
-                        2'b11: n_predict_inst_result[5:3] = next_result(predict_inst_result[5:3], jump_cause_i);
+                        2'b11: n_predict_inst_result[8:6] = next_result(predict_inst_result[8:6], jump_cause_i);
                         2'b00: n_predict_inst_result = predict_inst_result;
                     endcase
                 end
@@ -204,7 +204,7 @@ module pc (
                     predict_to_jump_o = `predict_jump_enable;
 
                 end else if (inst_addr_pred_cache_pointer == 2'b00) begin          
-                    n_predict_inst_addr = {pc_r, predict_inst_addr[3 * `inst_addr_bus_width - 1 : `inst_addr_bus_width]};
+                    n_predict_inst_addr = {pc_pre, predict_inst_addr[3 * `inst_addr_bus_width - 1 : `inst_addr_bus_width]};
                     if (pc_r[2]) begin
                         n_inst_addr = $signed(pc_pre) + imm_b;
                         n_pc_r = n_inst_addr + `inst_addr_bus_width 'b100;

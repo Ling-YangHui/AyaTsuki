@@ -78,7 +78,8 @@ module ex (
 
     // first step: allocate the data to alu_src
     wire [6:0] opcode_i = r_inst_i[6:0];
-    wire [19:0] inst_e_imm = {r_inst_i[31], r_inst_i[19: 12], r_inst_i[20], r_inst_i[30: 21]};
+    wire [19:0] inst_e_imm = r_inst_i[31: 20];
+    wire [2:0] func3 = r_inst_i[14:12];
     
     always @(*) begin
         inst_add_src1 = `data_zero;
@@ -125,6 +126,15 @@ module ex (
             `inst_auipc: begin
                 alu_src1 = r_pc_data_i;
                 alu_src2 = inst_u_lr;
+            end
+            `inst_csr: begin
+                alu_src2 = r_csr_data_i;
+                case (func3)
+                    `inst_csrrw, `inst_csrrs: alu_src1 = r_reg_data_1_i;
+                    `inst_csrrc: alu_src1 = ~r_reg_data_1_i;
+                    `inst_csrrwi, `inst_csrrsi: alu_src1 = r_imm_data_i;
+                    `inst_csrrci: alu_src1 = ~r_imm_data_i;
+                endcase
             end
             default: begin
                 alu_src1 = 32'b0;
@@ -242,6 +252,21 @@ module ex (
                     `inst_emret_imm: begin
                         jump_cause_o = `jump_cause_exit_interrupt;
                     end
+                    default: begin
+                        
+                    end
+                endcase
+            end
+            `inst_csr: begin
+                ex_w_csr_addr_o = w_csr_addr_i;
+                w_reg_addr_o = w_reg_addr_i;
+                ex_w_csr_enable_o = `write_enable;
+                ex_w_reg_enable_o = `write_enable;
+                ex_w_reg_data_o = r_csr_data_i;
+                case (func3[1: 0]) 
+                    2'b01: ex_w_csr_data_o = r_reg_data_1_i;
+                    2'b10: ex_w_csr_data_o = alu_result;
+                    2'b11: ex_w_csr_data_o = alu_result;
                     default: begin
                         
                     end

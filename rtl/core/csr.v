@@ -34,11 +34,15 @@ module csr (
     input wire [`csr_data_bus]  w_mstatus_i,
     input wire [`csr_data_bus]  w_mepc_i,
     input wire [`csr_data_bus]  w_mie_i,
+    input wire [`csr_data_bus]  w_mip_i,
+    input wire [`csr_data_bus]  w_mcause_i,
 
     output wire [`csr_data_bus] r_mstatus_o,
     output wire [`csr_data_bus] r_mepc_o,
     output wire [`csr_data_bus] r_mtvec_o,
-    output wire [`csr_data_bus] r_mie_o
+    output wire [`csr_data_bus] r_mie_o,
+    output wire [`csr_data_bus] r_mip_o,
+    output wire [`csr_data_bus] r_mcause_o
 );
 
     reg [`csr_data_bus] mstatus;
@@ -46,6 +50,8 @@ module csr (
     reg [`csr_data_bus] mtvec;
     reg [`csr_data_bus] mcycle;
     reg [`csr_data_bus] mie;
+    reg [`csr_data_bus] mcause;
+    reg [`csr_data_bus] mip;
 
     wire [`csr_data_bus] mstatus_in = (
         w_enable_i ? (
@@ -107,5 +113,7 @@ module csr (
     assign r_mtvec_o = mtvec;
     assign r_mstatus_o = mstatus;
     assign r_mie_o = mie;
+    assign r_mip_o = mip;
+    assign r_mcause_o = mcause;
     
 endmodule
