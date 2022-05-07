@@ -11,12 +11,13 @@ module tb_core;
 
 // pc_ifid Parameters
 parameter PERIOD  = 40;
+parameter SIZE = 65536;
 
 // pc_ifid Inputs
 reg clk = 0 ;
 reg rst_n = 0 ;
-reg [7:0] inst_rom [2047:0];
-reg [7:0] data_ram [2047:0];
+reg [7:0] inst_rom [SIZE-1:0];
+reg [7:0] data_ram [SIZE-1:0];
 
 wire [`inst_addr_bus] inst_addr_o;
 reg [`inst_bus] inst_i = `inst_nop;
@@ -33,7 +34,7 @@ always @(posedge clk) begin
     if (~rst_n) begin
         inst_i <= `inst_nop;
     end else begin
-        if (inst_addr_o <= 2044)
+        if (inst_addr_o <= SIZE-4)
             inst_i <= {inst_rom[inst_addr_o], inst_rom[inst_addr_o+1], inst_rom[inst_addr_o+2], inst_rom[inst_addr_o+3]};
         else 
             inst_i <= `inst_nop;    
@@ -44,7 +45,7 @@ always @(posedge clk) begin
     if (~rst_n) begin
         mem_r_data <= `data_zero;
     end else begin
-        if (mem_r_addr <= 2044) 
+        if (mem_r_addr <= SIZE-4) 
             mem_r_data <= {data_ram[mem_r_addr], data_ram[mem_r_addr+1], data_ram[mem_r_addr+2], data_ram[mem_r_addr+3]};
         else
             mem_r_data <= `data_zero;
@@ -53,7 +54,7 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    if (mem_w_addr <= 2044 && mem_enable && mem_w_enable) begin
+    if (mem_w_addr <= SIZE-4 && mem_enable && mem_w_enable) begin
         data_ram[mem_w_addr] <= mem_w_data[31:24];
         data_ram[mem_w_addr+1] <= mem_w_data[23:16];
         data_ram[mem_w_addr+2] <= mem_w_data[15:8];
@@ -81,7 +82,7 @@ ayatsuki_core core(
 integer i;
 initial
 begin
-    for (i = 0;i < 2048; i = i + 1) begin
+    for (i = 0;i < SIZE; i = i + 1) begin
         inst_rom[i] = 8'b0;
         data_ram[i] = 8'b0;
     end
