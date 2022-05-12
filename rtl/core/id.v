@@ -24,7 +24,7 @@ module id (
     output reg [`reg_addr_bus]          r_reg_addr_2_o,
 
     input wire [`csr_data_bus]          r_csr_data_i,
-    output reg [`csr_addr_bus]          r_csr_addr_o,                   
+    output reg [`csr_addr_bus]          r_csr_addr_o,                  
 
     // resource data input
     output wire [`reg_data_bus]         r_reg_data_1_o,
@@ -42,6 +42,7 @@ module id (
     // result target input
     output reg [`reg_addr_bus]          w_reg_addr_o,
     output reg [`csr_addr_bus]          w_csr_addr_o,
+    output reg                          w_csr_enable_o,
 
     // for l/s inst
     output reg [`data_type_bus]         data_type_o
@@ -77,6 +78,7 @@ module id (
         r_inst_o = inst_i;
         w_reg_addr_o = `reg_zero;
         w_csr_addr_o = `csr_zero;
+        w_csr_enable_o = `csr_disable;
         data_type_o = `datatype_no;
 
         case (opcode)
@@ -205,8 +207,12 @@ module id (
                 w_csr_addr_o = csr;
                 if (func3[2]) begin
                     imm_data_o = $unsigned(rs1);
+                    w_csr_enable_o = `csr_enable;
                 end else begin
                     r_reg_addr_1_o = rs1;
+                    if (rs1 != 0) begin
+                        w_csr_enable_o = `csr_enable;
+                    end
                 end
                 case (func3) 
                     `inst_csrrw: alu_inst_o = `alu_add;

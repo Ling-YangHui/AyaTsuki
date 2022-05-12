@@ -8,8 +8,8 @@
 `include "rtl/core/ayatsuki_core.v"
 `include "rtl/utils/digit_tube.v"
 `include "rtl/utils/div_clk.v"
-`include "AyaTsuki_ISE/ipcore_dir/memory.v"
-`include "AyaTsuki_ISE/ipcore_dir/rom.v"
+`include "rtl/soc/memory.v"
+`include "rtl/soc/rom.v"
 `include "rtl/perip/tim.v"
 `include "rtl/perip/uart.v"
 `include "rtl/perip/load.v"
@@ -24,7 +24,8 @@ module ayatsuki_soc (
     input wire          rst_n,
     output wire [1: 0]  data_sel,
     output wire [7: 0]  data_driver,
-    output wire         uart_tx
+    output wire         uart_tx,
+    input wire          uart_rx
 );
 
     // Divide clk 10MHz
@@ -37,15 +38,15 @@ module ayatsuki_soc (
             div_clk <= 0;
             div_rst_n <= 0;
         end else begin
-            if (cnt == 2'b11 && div_clk == 1'b1) begin
+            if (cnt == 2'b10 && div_clk == 1'b1) begin
                 cnt <= 0;
                 div_clk <= 1'b0;
                 if (div_rst_n == 1'b0) begin
                     div_rst_n <= 1'b1;
                 end
-            end else if (cnt == 2'b10 && div_clk == 1'b0) begin
+            end else if (cnt == 2'b01 && div_clk == 1'b0) begin
                 cnt <= 0;
-                div_clk <= 1'b0;
+                div_clk <= 1'b1;
             end else begin
                 cnt <= cnt + 2'b1;
             end
@@ -85,7 +86,7 @@ module ayatsuki_soc (
         bus_r_data = `data_bus_width'b0;
         if (past_r_addr_r >= `tim_addr_start && past_r_addr_r <= `tim_addr_end)
             bus_r_data = tim_r_data;
-        else if (past_r_addr_r >= `uart_addr_start && past_r_addr_r <= `uart_addr_start) begin
+        else if (past_r_addr_r >= `uart_addr_start && past_r_addr_r <= `uart_addr_end) begin
             bus_r_data = uart_r_data;
         end else 
             bus_r_data = mem_r_data;
@@ -107,7 +108,7 @@ module ayatsuki_soc (
         .mem_data_i     (bus_r_data     ),
         .mem_data_o     (bus_w_data     ),
 
-        .irq_req_i      (irq_req        ),
+        .irq_req_i      (`irq_bus_width'b0 ),
         .irq_response_o (irq_ack        )
     );
 	 
@@ -134,7 +135,8 @@ module ayatsuki_soc (
         .uart_w_enable_i (bus_w_enable  ),
 
         .uart_data_o     (uart_r_data   ),
-        .tx              (uart_tx       )
+        .tx              (uart_tx       ),
+        .rx              (uart_rx       )
         // .uart_irq_o      (uart_irq_o    )
     );
 
@@ -142,19 +144,19 @@ module ayatsuki_soc (
         .clka		(div_clk	        ), // input clka
         .ena		(bus_enable		    ), // input ena
         .wea		(bus_w_enable	    ), // input [0 : 0] wea
-        .addra		(bus_w_addr >> 2    ), // input [8 : 0] addra
+        .addra		(bus_w_addr[10: 2]  ), // input [8 : 0] addra
         .dina		(bus_w_data		    ), // input [31 : 0] dina
         .clkb		(div_clk			), // input clkb
         .rstb		(~div_rst_n			), // input rstb
         .enb		(bus_r_enable	    ), // input enb
-        .addrb		(bus_r_addr >> 2	), // input [8 : 0] addrb
+        .addrb		(bus_r_addr[10: 2]	), // input [8 : 0] addrb
         .doutb		(mem_r_data		    )  // output [31 : 0] doutb
 	);
     
 	rom u_rom (
         .clka		(div_clk		    ), // input clka
         .rsta		(~div_rst_n			), // input rsta
-        .addra		(inst_addr >> 2		), // input [8 : 0] addra
+        .addra		(inst_addr[10: 2]   ), // input [8 : 0] addra
         .douta		(inst			    )  // output [31 : 0] douta
     );
 	 

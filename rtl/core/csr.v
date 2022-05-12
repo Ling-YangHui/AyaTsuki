@@ -70,7 +70,7 @@ module csr (
             (w_addr_i == `csr_mtvec_addr) ? w_data_i : mtvec
         ) : mtvec
     );
-    wire [`csr_data_bus] mcycle_in = mcycle_in + `csr_data_bus_width'b1;
+    wire [`csr_data_bus] mcycle_in = mcycle + `csr_data_bus_width'b1;
     wire [`csr_data_bus] mie_in = (
         w_enable_i ? (
             (w_ctrl_enable_i) ? w_mepc_i : 

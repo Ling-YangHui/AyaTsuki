@@ -135,7 +135,7 @@
 `define data_zero 32'b0
 `define inst_nop 32'h00000013 // ADDI x0, x0, 0
 `define mem_addr_zero 32'b0
-`define csr_zero 32'b0
+`define csr_zero 12'b0
 `define inst_addr_zero 32'b0
 
 // Mirco Instructure

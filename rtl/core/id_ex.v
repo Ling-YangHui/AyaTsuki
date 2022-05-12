@@ -39,6 +39,7 @@ module id_ex (
     // result target input
     input wire [`reg_addr_bus]          w_reg_addr_i,
     input wire [`csr_addr_bus]          w_csr_addr_i,
+    input wire                          w_csr_enable_i,
 
     // for l/s inst
     input wire [`data_type_bus]         data_type_i,
@@ -62,6 +63,7 @@ module id_ex (
     // result target input
     output wire [`reg_addr_bus]         w_reg_addr_o,
     output wire [`csr_addr_bus]         w_csr_addr_o,
+    output wire                         w_csr_enable_o,
 
     // for l/s inst
     output wire [`data_type_bus]        data_type_o,
@@ -140,7 +142,7 @@ module id_ex (
         .rst_n          (rst_n          ),
         .set_default    (hold_flush     ),
         .hold_en        (hold_wait      ),
-        .default_data_i (`csr_zero      ),
+        .default_data_i (`data_zero     ),
         .data_i         (r_csr_data_i   ),
         .data_o         (r_csr_data_o   )
     );
@@ -215,6 +217,18 @@ module id_ex (
         .default_data_i (`csr_zero      ),
         .data_i         (w_csr_addr_i   ),
         .data_o         (w_csr_addr_o   )
+    );
+
+    pipe_reg_s #(
+        .dw (1)
+    ) pipe_w_csr_enable (
+    	.clk            (clk            ),
+        .rst_n          (rst_n          ),
+        .set_default    (hold_flush     ),
+        .hold_en        (hold_wait      ),
+        .default_data_i (`csr_disable   ),
+        .data_i         (w_csr_enable_i ),
+        .data_o         (w_csr_enable_o )
     );
 
     pipe_reg_s #(

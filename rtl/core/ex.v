@@ -30,6 +30,7 @@ module ex (
     // result target input
     input wire [`reg_addr_bus]          w_reg_addr_i,
     input wire [`csr_addr_bus]          w_csr_addr_i,
+    input wire                          w_csr_enable_i,
 
     // for l/s inst
     input wire [`data_type_bus]         data_type_i,
@@ -260,7 +261,7 @@ module ex (
             `inst_csr: begin
                 ex_w_csr_addr_o = w_csr_addr_i;
                 w_reg_addr_o = w_reg_addr_i;
-                ex_w_csr_enable_o = `write_enable;
+                ex_w_csr_enable_o = w_csr_enable_i;
                 ex_w_reg_enable_o = `write_enable;
                 ex_w_reg_data_o = r_csr_data_i;
                 case (func3[1: 0]) 
