@@ -31,24 +31,25 @@ module uart (
     output reg [`irq_bus]       uart_rx_irq
 );
 
-    reg [7: 0] uart_tx_w;
-    reg [7: 0] uart_rx_r;
-    reg [`data_bus] uart_ctrl_rw;
-    reg [`data_bus] uart_status_r;
-    reg [`data_bus] uart_baud_rw;
+    reg [7: 0] uart_tx_w; // tx register, write only, protected
+    reg [7: 0] uart_rx_r; // rx register, read only, protected, only update when rx_end
+    reg [`data_bus] uart_ctrl_rw; // ctrl register, bit functions are shown below
+    reg [`data_bus] uart_status_r; // status register, bit functions are shown below
+    reg [`data_bus] uart_baud_rw; // baudrate register, when the counter hit the baudrate_cnt, a next_bit event will occur, and uart_module will receive or send the next bit
 
     `define tx_sending uart_status_r[0]
     `define rx_valid uart_status_r[1] // if read rx, it will be reset
 
-    wire uart_tx_enable = uart_ctrl_rw[0];
-    wire uart_rx_enable = uart_ctrl_rw[1];
-    wire uart_tx_irq_enable = uart_ctrl_rw[2];
-    wire uart_rx_irq_enable = uart_ctrl_rw[3];
+    wire uart_tx_enable = uart_ctrl_rw[0]; // enable tx
+    wire uart_rx_enable = uart_ctrl_rw[1]; // enable rx
+    wire uart_tx_irq_enable = uart_ctrl_rw[2]; // enable tx irq
+    wire uart_rx_irq_enable = uart_ctrl_rw[3]; // enable rx irq
     
-    parameter baud_115200 = 'd10_000_000 / 115200;
+    parameter baud_115200 = 'd10_000_000 / 115200; // default irq, cpu clock 10MHz
     
     /* RAM Interface: Read and Write */
-    wire w_tx_enable = uart_w_enable_i == `write_enable && uart_w_addr_i == `uart_tx_addr;
+    // write or read enable signals
+    wire w_tx_enable = uart_w_enable_i == `write_enable && uart_w_addr_i == `uart_tx_addr; 
     wire w_ctrl_enable = uart_w_enable_i == `write_enable && uart_w_addr_i == `uart_ctrl_addr;
     wire w_baud_enable = uart_w_enable_i == `write_enable && uart_w_addr_i == `uart_baud_addr;
     wire r_rx_enable = uart_r_enable_i == `read_enable && uart_r_addr_i == `uart_rx_addr;
@@ -131,14 +132,17 @@ module uart (
     // signals
     wire tx_start = w_tx_enable && uart_tx_enable && (`tx_sending == 1'b0);
 
+    // when tx_start, update the tx_reg
     always @(posedge clk) begin
         if (rst_n == `rst_enable) begin
             tx_reg <= 0;
         end else begin
-            tx_reg <= uart_tx_w;
+            if (tx_start)
+                tx_reg <= uart_data_i[7: 0];
         end
     end
     
+    // tx_status switch
     always @(posedge clk) begin
         if (rst_n == `rst_enable) begin
             tx_status <= TX_IDLE;
@@ -147,6 +151,7 @@ module uart (
         end
     end
 
+    // set the tx_busy bit in status
     always @(posedge clk) begin
         if (rst_n == `rst_enable) begin
             `tx_sending <= 0;
@@ -159,6 +164,7 @@ module uart (
         end
     end
 
+    // count the tx_clock
     always @(posedge clk) begin
         if (rst_n == `rst_enable || tx_status == TX_IDLE) begin
             tx_cnt <= 0;
@@ -171,6 +177,7 @@ module uart (
         end
     end
 
+    // count the number of bit sent
     always @(posedge clk) begin
         if (rst_n == `rst_enable || tx_status != TX_DATA) begin
             tx_bit_cnt <= 0;
@@ -181,6 +188,7 @@ module uart (
         end
     end
 
+    // get the next tx_status
     always @(*) begin
         case(tx_status)
             TX_IDLE: begin
@@ -214,6 +222,7 @@ module uart (
         endcase
     end
 
+    // generate tx_irq
     always @(*) begin
         if (tx_status == TX_END) begin
             if (tx_cnt == uart_baud_rw[15: 0] && uart_tx_irq_enable) begin
@@ -226,6 +235,7 @@ module uart (
         end
     end
 
+    // tx send bits
     always @(posedge clk) begin
         if (rst_n == `rst_enable) begin
             tx <= 1'b1;

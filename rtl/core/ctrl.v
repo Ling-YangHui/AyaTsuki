@@ -55,7 +55,8 @@ module ctrl (
     reg [`holdpip_bus] hold_pc;
     reg [`holdpip_bus] hold_if_id;
     reg [`holdpip_bus] hold_id_ex;
-    reg [`holdpip_bus] hold_ex_memwb;
+    reg [`holdpip_bus] hold_ex_mem;
+    reg [`holdpip_bus] hold_mem_wb;
 
     reg ex_interrupt_req;
     reg next_ex_interrupt_req;
@@ -76,7 +77,7 @@ module ctrl (
         end
     end
 
-    assign hold_ctrl_o = {hold_ex_memwb, hold_id_ex, hold_if_id, hold_pc};
+    assign hold_ctrl_o = {hold_mem_wb, hold_ex_mem, hold_id_ex, hold_if_id, hold_pc};
 
     // because the hold_req has pri, so we has to use if-else structure
     always @(*) begin
@@ -90,18 +91,15 @@ module ctrl (
         next_ex_interrupt_req = 1'b0;
         next_extern_irq = 1'b0;
         next_extern_irq_addr = `inst_addr_bus_width'b0;
+        hold_mem_wb = `hold_no;
 
         // HOLD AND WAIT
-        if (mem_wb_wr_wait_req_i == `req_enable) begin
+        if (ex_multi_clock_wait_req_i == `req_enable) begin
             hold_pc = `hold_wait;
             hold_if_id = `hold_wait;
             hold_id_ex = `hold_wait;
-            hold_ex_memwb = `hold_wait;
-        end else if (ex_multi_clock_wait_req_i == `req_enable) begin
-            hold_pc = `hold_wait;
-            hold_if_id = `hold_wait;
-            hold_id_ex = `hold_wait;
-            hold_ex_memwb = `hold_flush;
+            hold_ex_mem = `hold_flush;
+            hold_mem_wb = `hold_no;
         end else if (ex_jump_cause_i == `jump_cause_interrupt || 
                     ex_interrupt_req ) begin 
             if (r_mstatus_i[31]) begin
@@ -117,7 +115,8 @@ module ctrl (
                 hold_pc = `hold_wait;
                 hold_if_id = `hold_flush;
                 hold_id_ex = `hold_flush;
-                hold_ex_memwb = `hold_no;
+                hold_ex_mem = `hold_no;
+                hold_mem_wb = `hold_no;
 
                 w_mstatus_o[31] = 1'b1;
                 w_mepc_o = ex_jump_from_addr_i + 4;
@@ -138,7 +137,8 @@ module ctrl (
                 hold_pc = `hold_wait;
                 hold_if_id = `hold_flush;
                 hold_id_ex = `hold_flush;
-                hold_ex_memwb = `hold_no;
+                hold_ex_mem = `hold_no;
+                hold_mem_wb = `hold_no;
             end else begin
                 w_mstatus_o[`irq_bus] = `irq_bus_width'hFF;
                 w_mstatus_o[31] = 1'b1;
@@ -152,7 +152,8 @@ module ctrl (
                 hold_pc = `hold_wait;
                 hold_if_id = `hold_flush;
                 hold_id_ex = `hold_flush;
-                hold_ex_memwb = `hold_flush;
+                hold_ex_mem = `hold_flush;
+                hold_mem_wb = `hold_no;
             end
             
 
@@ -170,7 +171,8 @@ module ctrl (
                 hold_pc = `hold_wait;
                 hold_if_id = `hold_flush;
                 hold_id_ex = `hold_flush;
-                hold_ex_memwb = `hold_flush;
+                hold_ex_mem = `hold_flush;
+                hold_mem_wb = `hold_no;
 
                 w_mstatus_o[31] = 1'b1;
                 w_mstatus_o[`irq_bus] = (extern_irq) ? extern_irq_addr : irq_flush_req_addr_i;
@@ -191,12 +193,20 @@ module ctrl (
             hold_pc = `hold_wait;
             hold_if_id = `hold_flush;
             hold_id_ex = `hold_flush;
-            hold_ex_memwb = `hold_no; // because the next step may has some operation to write register
+            hold_ex_mem = `hold_no; // because the next step may has some operation to write register
+            hold_mem_wb = `hold_no;
+        end else if (mem_wb_wr_wait_req_i == `req_enable) begin
+            hold_pc = `hold_wait;
+            hold_if_id = `hold_wait;
+            hold_id_ex = `hold_flush;
+            hold_ex_mem = `hold_no;
+            hold_mem_wb = `hold_no;
         end else begin
             hold_pc = `hold_no;
             hold_if_id = `hold_no;
             hold_id_ex = `hold_no;
-            hold_ex_memwb = `hold_no;
+            hold_ex_mem = `hold_no;
+            hold_mem_wb = `hold_no;
         end
     end
     

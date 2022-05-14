@@ -2,16 +2,16 @@ module memory (
     input wire          clka,
     input wire          ena,
     input wire          wea,
-    input wire [8: 0]   addra,
-    input wire [31: 0]  dina,
+    input wire [10: 0]   addra,
+    input wire [7: 0]  dina,
     input wire          clkb,
     input wire          rstb,
     input wire          enb,
-    input wire [8: 0]   addrb,
-    output reg [31: 0]  doutb
+    input wire [10: 0]   addrb,
+    output reg [7: 0]  doutb
 );
     
-    reg [31: 0] ram [511: 0];
+    reg [7: 0] ram [511: 0];
     integer init_i = 0;
     initial begin
         for (init_i = 0; init_i <= 511; init_i = init_i + 1) begin

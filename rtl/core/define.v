@@ -28,7 +28,7 @@
 `define data_bus 31:0
 `define data_bus_width 32
 
-`define hold_ctrl_bus 7:0
+`define hold_ctrl_bus 9:0
 `define holdpip_bus 1:0
 `define holdpip_bus_width 2
 

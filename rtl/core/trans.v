@@ -14,9 +14,13 @@
 
 module trans (
     // write_req
-    input wire                  w_reg_req_i,
-    input wire [`reg_addr_bus]  w_reg_addr_i,
-    input wire [`reg_data_bus]  w_reg_data_i,
+    input wire                  mem_w_reg_req_i,
+    input wire [`reg_addr_bus]  mem_w_reg_addr_i,
+    input wire [`reg_data_bus]  mem_w_reg_data_i,
+    input wire                  wb_w_reg_req_i,
+    input wire [`reg_addr_bus]  wb_w_reg_addr_i,
+    input wire [`reg_data_bus]  wb_w_reg_data_i,
+
     input wire                  w_csr_req_i,
     input wire [`csr_addr_bus]  w_csr_addr_i,
     input wire [`csr_data_bus]  w_csr_data_i,
@@ -35,13 +39,19 @@ module trans (
     
     // replace(transmit) the register data
     assign r_reg_data_1_o = (
-        (r_reg_addr_1_i == w_reg_addr_i && w_reg_req_i == `write_reg_req_enable && r_reg_addr_1_i != 0) ? 
-        w_reg_data_i : r_reg_data_1_i 
+        (r_reg_addr_1_i == mem_w_reg_addr_i && mem_w_reg_req_i == `write_reg_req_enable && r_reg_addr_1_i != 0) ? 
+        mem_w_reg_data_i : 
+        (r_reg_addr_1_i == wb_w_reg_addr_i && wb_w_reg_req_i == `write_reg_req_enable && r_reg_addr_1_i != 0) ? 
+        wb_w_reg_data_i : 
+        r_reg_data_1_i 
     );
 
     assign r_reg_data_2_o = (
-        (r_reg_addr_2_i == w_reg_addr_i && w_reg_req_i == `write_reg_req_enable && r_reg_addr_1_i != 0) ? 
-        w_reg_data_i : r_reg_data_2_i 
+        (r_reg_addr_2_i == mem_w_reg_addr_i && mem_w_reg_req_i == `write_reg_req_enable && r_reg_addr_2_i != 0) ? 
+        mem_w_reg_data_i : 
+        (r_reg_addr_2_i == wb_w_reg_addr_i && wb_w_reg_req_i == `write_reg_req_enable && r_reg_addr_2_i != 0) ? 
+        wb_w_reg_data_i : 
+        r_reg_data_2_i 
     ); 
 
     assign r_csr_data_o = (

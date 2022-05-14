@@ -8,7 +8,7 @@
 `include "rtl/core/ayatsuki_core.v"
 `include "rtl/utils/digit_tube.v"
 `include "rtl/utils/div_clk.v"
-`include "rtl/soc/memory.v"
+`include "rtl/soc/ram.v"
 `include "rtl/soc/rom.v"
 `include "rtl/perip/tim.v"
 `include "rtl/perip/uart.v"
@@ -140,18 +140,18 @@ module ayatsuki_soc (
         // .uart_irq_o      (uart_irq_o    )
     );
 
-	memory u_memory (
-        .clka		(div_clk	        ), // input clka
-        .ena		(bus_enable		    ), // input ena
-        .wea		(bus_w_enable	    ), // input [0 : 0] wea
-        .addra		(bus_w_addr[10: 2]  ), // input [8 : 0] addra
-        .dina		(bus_w_data		    ), // input [31 : 0] dina
-        .clkb		(div_clk			), // input clkb
-        .rstb		(~div_rst_n			), // input rstb
-        .enb		(bus_r_enable	    ), // input enb
-        .addrb		(bus_r_addr[10: 2]	), // input [8 : 0] addrb
-        .doutb		(mem_r_data		    )  // output [31 : 0] doutb
-	);
+	ram u_ram(
+    	.clk        (div_clk                        ),
+        .ena        (bus_enable                     ),
+        .wea        (bus_w_enable & ~bus_w_addr[31] ),
+        .addra      (bus_w_addr[12: 0]              ),
+        .dina       (bus_w_data                     ),
+        .rstb       (~rst_n                         ),
+        .enb        (bus_r_enable                   ),
+        .addrb      (bus_r_addr[12: 0]              ),
+        .doutb      (mem_r_data                     )
+    );
+    
     
 	rom u_rom (
         .clka		(div_clk		    ), // input clka
