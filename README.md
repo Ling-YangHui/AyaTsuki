@@ -2,7 +2,7 @@
 
 ## 项目简介
 
-AyaTsuki是一款基于Risc-V指令集的CPU，具有四级流水线（IF-ID-EX-MEMWB）。AyaTsuki的命名取自本人所属开发团队 LingYue Studio。目前该CPU处于第一次迭代开发周期中。
+AyaTsuki是一款基于Risc-V指令集的CPU，具有五级流水线（IF-ID-EX-MEM-WB）。AyaTsuki的命名取自本人所属开发团队 LingYue Studio。目前该CPU处于第一次迭代开发周期中。
 
 ## 项目完成度
 
@@ -14,20 +14,22 @@ AyaTsuki是一款基于Risc-V指令集的CPU，具有四级流水线（IF-ID-EX-
 * 完成了FPGA上移植，已经在Xilinx Spartan3E FPGA上成功运行
 * 完成UART串口、TIM定时器的外设设计，大致确定了外设的总线机制
 * 完成中断和CPU异常机制的初步设计（clint模块和ctrl模块兼容）
+* 鉴于内存性能，将四级流水线升级为五级流水线，MEM-WB分为两层处理
 
 ## 项目计划
 
 * 兼容RV32M，并兼容多周期指令乱序处理（ctrl等待机制和乱序重排）
 * 完善CPU权限状态，争取兼容类Unix操作系统（csr寄存器机制）
 * 完成RIB总线机制，以支持外设的开发（ctrl模块等待机制）
-* FFT快速傅里叶变换的外设
+* FFT快速傅里叶变换的外设（我实在是做不完了）
 * 引入自行设计的CPU调试和监视模块
 
 ## 版本迭代
 
 |日期|版本号|迭代内容|
 |-|:-:|:-:|
-|2022.05.06|version 0.2.0-Alpha|完成了CPU异常状态和中断功能|
+|2022.05.06|version 0.2.0-Beta|采用五级流水线架构，兼容性测试基本通过|
+|2022.05.06|version 0.2.0-Alpha|完成了CPU异常状态和中断功能，开始五级流水线探索|
 |2022.04.04|version 0.1.1-Beta|完成了FPGA实机测试|
 |2022.04.01|version 0.1.1-Alpha|完成了分支预测功能|
 |2022.03.31|verison 0.1.0-Beta|完成了最小指令集兼容|
