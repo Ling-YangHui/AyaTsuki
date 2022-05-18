@@ -54,9 +54,7 @@ module clint (
     end
 
     always @(*) begin
-        if ((tim_irq || tim_irq_pend) && irq_enable[0]) begin
-            
-        end
+        
     end
 
 

@@ -129,9 +129,9 @@ module ayatsuki_core (
         */
     );
 
-    wire w_memwb_csr_enable;
+    wire w_mem_csr_enable;
     wire w_ctrl_csr_enable;
-    wire w_csr_enable = w_memwb_csr_enable | w_ctrl_csr_enable;
+    wire w_csr_enable = w_mem_csr_enable | w_ctrl_csr_enable;
     wire [`csr_addr_bus] w_csr_addr;
     wire [`csr_data_bus] w_csr_data;
     wire [`csr_addr_bus] r_csr_addr;
@@ -179,6 +179,7 @@ module ayatsuki_core (
 
     wire [`csr_data_bus] id_csr_data;
     wire [`csr_addr_bus] id_w_csr_addr;
+    wire id_w_csr_enable;
 
     id u_id(
     	.inst_i         (if_id_inst         ),
@@ -201,8 +202,8 @@ module ayatsuki_core (
         .alu_inst_o     (id_alu_inst        ),
         .r_inst_o       (id_inst            ),
         .w_reg_addr_o   (id_w_reg_addr      ),
-        
         .w_csr_addr_o   (id_w_csr_addr      ),
+        .w_csr_enable_o (id_w_csr_enable    ),
         
         .data_type_o    (id_datatype        )
     );
@@ -221,6 +222,7 @@ module ayatsuki_core (
     wire [`csr_addr_bus] id_ex_csr_addr;
     wire [`csr_data_bus] id_ex_csr_data;
     wire [`csr_addr_bus] id_ex_w_csr_addr;
+    wire id_ex_w_csr_enable;
 
     id_ex u_id_ex(
     	.clk                    (clk                        ),
@@ -238,6 +240,7 @@ module ayatsuki_core (
         .r_inst_i               (id_inst                    ),
         .w_reg_addr_i           (id_w_reg_addr              ),
         .w_csr_addr_i           (id_w_csr_addr              ),
+        .w_csr_enable_i         (id_w_csr_enable            ),
         .data_type_i            (id_datatype                ),
 
         .predict_jump_enable_i  (if_id_predict_jump_enable  ),
@@ -254,6 +257,7 @@ module ayatsuki_core (
         .r_inst_o               (id_ex_inst                 ),
         .w_reg_addr_o           (id_ex_w_reg_addr           ),
         .w_csr_addr_o           (id_ex_w_csr_addr           ),
+        .w_csr_enable_o         (id_ex_w_csr_enable         ),
         .data_type_o            (id_ex_datatype             ),
         .predict_jump_enable_o  (id_ex_predict_jump_enable  )
     );
@@ -292,6 +296,7 @@ module ayatsuki_core (
         .r_inst_i               (id_ex_inst         ),
         .w_reg_addr_i           (id_ex_w_reg_addr   ),
         .w_csr_addr_i           (id_ex_w_csr_addr   ),
+        .w_csr_enable_i         (id_ex_w_csr_enable ),
         .data_type_i            (id_ex_datatype     ),
 
         .predict_jump_enable_i  (id_ex_predict_jump_enable),
@@ -409,10 +414,10 @@ module ayatsuki_core (
 
         .ex_w_csr_addr_o    (w_csr_addr             ),
         .ex_w_csr_data_o    (w_csr_data             ),
-        .ex_w_csr_enable_o  (w_memwb_csr_enable     )
+        .ex_w_csr_enable_o  (w_mem_csr_enable     )
     );
 
-    wire mem_wb_wr_wait_req_i = (ex_memw_reg_enable && (ex_w_reg_addr == r_reg_addr1 || ex_mem_w_reg_addr == r_reg_addr2));
+    wire mem_wb_wr_wait_req_i = (ex_memw_reg_enable && (ex_w_reg_addr == r_reg_addr1 || ex_w_reg_addr == r_reg_addr2));
 
     trans u_trans(
         // supply by mem wb

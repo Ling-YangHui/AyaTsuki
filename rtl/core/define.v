@@ -263,3 +263,5 @@
 `define csr_mepc_addr 12'b010
 `define csr_mstatus_addr 12'b011
 `define csr_mie_addr 12'b100
+
+`define cpu_id 32'h114514

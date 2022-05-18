@@ -264,7 +264,7 @@ module uart (
     parameter RX_END = 2'b10;
 
     // signals
-    wire rx_start = past_rx && (~rx);
+    wire rx_start = (rx_status == RX_IDLE) && (past_rx == 0);
 
     always @(posedge clk) begin
         if (rst_n == `rst_enable) begin
@@ -313,7 +313,7 @@ module uart (
             rx_bit_cnt <= 0;
         end else begin
             if (rx_cnt == uart_baud_rw[15: 0]) begin
-                rx_bit_cnt <= tx_bit_cnt + 1;
+                rx_bit_cnt <= rx_bit_cnt + 1;
             end
         end
     end
@@ -367,7 +367,7 @@ module uart (
         if (rst_n == `rst_enable) begin
             rx_reg <= 0;
         end else begin
-            if (tx_status == RX_DATA && rx_cnt == uart_baud_rw[15: 0]) begin
+            if (rx_status == RX_DATA && rx_cnt == uart_baud_rw[15: 0]) begin
                 rx_reg[rx_bit_cnt] <= rx;
             end 
         end

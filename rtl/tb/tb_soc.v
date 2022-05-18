@@ -12,6 +12,7 @@ parameter PERIOD = 20;
 // ayatsuki_soc Inputs
 reg   clk                                  = 0 ;
 reg   rst_n                                = 0 ;
+reg   rx = 1;
 
 // ayatsuki_soc Outputs
 
@@ -32,12 +33,35 @@ ayatsuki_soc  u_ayatsuki_soc (
     .clk                     ( clk              ),
     .rst_n                   ( rst_n            ),
     .uart_tx                 ( tx               ),
-    .uart_rx                 ( tx               )
+    .uart_rx                 ( rx               )
 );
 
 initial
 begin
-    repeat(6 * 1500) @(negedge clk); 
+    repeat(6 * 50) @(negedge clk);
+    
+    rx = 0;
+    #8680;
+    rx = 1;
+    #8680;
+    rx = 0;
+    #8680;
+    rx = 1;
+    #8680;
+    rx = 0;
+    #8680;
+    rx = 1;
+    #8680;
+    rx = 0;
+    #8680;
+    rx = 1;
+    #8680;
+    rx = 0;
+    #8680;
+    rx = 1;
+
+    repeat(6 * 1500) @(negedge clk);
+
     $finish;
 end
 

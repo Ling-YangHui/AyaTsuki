@@ -94,6 +94,7 @@ module ayatsuki_soc (
 
     wire [`irq_bus] irq_req;
     wire irq_ack;
+    wire [`irq_bus] uart_rx_irq;
 
     ayatsuki_core u_ayatsuki_core(
 		.clk            (div_clk        ),
@@ -108,7 +109,7 @@ module ayatsuki_soc (
         .mem_data_i     (bus_r_data     ),
         .mem_data_o     (bus_w_data     ),
 
-        .irq_req_i      (`irq_bus_width'b0 ),
+        .irq_req_i      (uart_rx_irq    ),
         .irq_response_o (irq_ack        )
     );
 	 
@@ -125,6 +126,7 @@ module ayatsuki_soc (
         // .tim_irq_o      (tim_irq_o      )
     );
 
+
     uart u_uart(
     	.clk             (div_clk       ),
         .rst_n           (div_rst_n     ),
@@ -136,8 +138,8 @@ module ayatsuki_soc (
 
         .uart_data_o     (uart_r_data   ),
         .tx              (uart_tx       ),
-        .rx              (uart_rx       )
-        // .uart_irq_o      (uart_irq_o    )
+        .rx              (uart_rx       ),
+        .uart_rx_irq     (uart_rx_irq   )
     );
 
 	ram u_ram(
