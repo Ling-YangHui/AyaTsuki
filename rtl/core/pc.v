@@ -134,11 +134,19 @@ module pc (
         input [2:0] now_result;
         input random_jump;
         case (now_result)
-            predict_jump_light, predict_jump_strong: inst_jump_ornot = 1'b1;
+            predict_jump_light, predict_jump_strong: begin
+                inst_jump_ornot = 1'b1;
+                `ifdef __DEBUG_NOBPU__
+                inst_jump_ornot = 1'b0;
+                `endif
+            end
             predict_nojump_light, predict_nojump_strong: inst_jump_ornot = 1'b0;
             predict_random: begin
                 if (random_jump) begin
                     inst_jump_ornot = 1'b1;
+                    `ifdef __DEBUG_NOBPU__
+                    inst_jump_ornot = 1'b0;
+                    `endif
                 end else begin
                     inst_jump_ornot = 1'b0;
                 end

@@ -12,6 +12,7 @@
 `include "rtl/soc/rom.v"
 `include "rtl/perip/tim.v"
 `include "rtl/perip/uart.v"
+`include "rtl/perip/crc32.v"
 `include "rtl/perip/load.v"
 `endif
 
@@ -68,6 +69,7 @@ module ayatsuki_soc (
     wire [`data_bus] mem_r_data;
     wire [`data_bus] tim_r_data;
     wire [`data_bus] uart_r_data;
+    wire [`data_bus] crc_r_data;
 
     wire [`inst_addr_bus] load_inst_addr;
     wire [`inst_bus] load_inst_data;
@@ -86,9 +88,11 @@ module ayatsuki_soc (
         bus_r_data = `data_bus_width'b0;
         if (past_r_addr_r >= `tim_addr_start && past_r_addr_r <= `tim_addr_end)
             bus_r_data = tim_r_data;
-        else if (past_r_addr_r >= `uart_addr_start && past_r_addr_r <= `uart_addr_end) begin
+        else if (past_r_addr_r >= `uart_addr_start && past_r_addr_r <= `uart_addr_end)
             bus_r_data = uart_r_data;
-        end else 
+        else if (past_r_addr_r >= `crc_addr_start && past_r_addr_r <= `crc_addr_end)
+            bus_r_data = crc_r_data;
+        else 
             bus_r_data = mem_r_data;
     end
 
@@ -141,6 +145,18 @@ module ayatsuki_soc (
         .rx              (uart_rx       ),
         .uart_rx_irq     (uart_rx_irq   )
     );
+
+    crc32 u_crc32(
+    	.clk            (div_clk        ),
+        .rst_n          (div_rst_n      ),
+        .crc_r_addr_i   (bus_r_addr     ),
+        .crc_w_addr_i   (bus_w_addr     ),
+        .crc_data_i     (bus_w_data     ),
+        .crc_r_enable_i (bus_r_enable   ),
+        .crc_w_enable_i (bus_w_enable   ),
+        .crc_data_o     (crc_r_data     )
+    );
+    
 
 	ram u_ram(
     	.clk        (div_clk                        ),

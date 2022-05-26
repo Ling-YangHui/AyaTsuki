@@ -13,6 +13,13 @@
 `define uart_ctrl_addr 32'h1000_0110
 `define uart_addr_end 32'h1000_0110
 
+`define crc_addr_start 32'h1000_0200
+`define crc_data_addr 32'h1000_0200
+`define crc_ctrl_addr 32'h1000_0204
+`define crc_status_addr 32'h1000_0208
+`define crc_result_addr 32'h1000_020C
+`define crc_addr_end 32'h1000_020C
+
 // IRQ Cause
 `define irq_bus 7:0
 `define irq_bus_width 8

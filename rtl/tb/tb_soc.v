@@ -38,29 +38,7 @@ ayatsuki_soc  u_ayatsuki_soc (
 
 initial
 begin
-    repeat(6 * 50) @(negedge clk);
-    
-    rx = 0;
-    #8680;
-    rx = 1;
-    #8680;
-    rx = 0;
-    #8680;
-    rx = 1;
-    #8680;
-    rx = 0;
-    #8680;
-    rx = 1;
-    #8680;
-    rx = 0;
-    #8680;
-    rx = 1;
-    #8680;
-    rx = 0;
-    #8680;
-    rx = 1;
-
-    repeat(6 * 1500) @(negedge clk);
+    repeat(6 * 500) @(negedge clk);
 
     $finish;
 end
