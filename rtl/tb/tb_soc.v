@@ -15,8 +15,6 @@ reg   rst_n                                = 0 ;
 reg   rx = 1;
 
 // ayatsuki_soc Outputs
-
-
 initial
 begin
     $dumpfile("./release/tb_soc.vcd");
@@ -26,7 +24,7 @@ end
 
 initial
 begin
-    #(PERIOD*2 * 6) rst_n  =  1;
+    #(PERIOD*2 * 5) rst_n  =  1;
 end
 
 ayatsuki_soc  u_ayatsuki_soc (
@@ -38,8 +36,30 @@ ayatsuki_soc  u_ayatsuki_soc (
 
 initial
 begin
-    repeat(6 * 500) @(negedge clk);
+    repeat(6 * 200) @(negedge clk);
+    
+    rx = 0;
+    #8680;
+    rx = 1;
+    #8680;
+    rx = 0;
+    #8680;
+    rx = 1;
+    #8680;
+    rx = 0;
+    #8680;
+    rx = 1;
+    #8680;
+    rx = 0;
+    #8680;
+    rx = 1;
+    #8680;
+    rx = 0;
+    #8680;
+    rx = 1;
 
+    repeat(6 * 1500) @(negedge clk);
+    repeat(6 * 500) @(negedge clk);
     $finish;
 end
 
